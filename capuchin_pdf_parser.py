@@ -1,5 +1,10 @@
 import pandas as pd
 import numpy as np
+import warnings
+
+# Suppress PyTorch MPS warnings on Apple Silicon
+warnings.filterwarnings("ignore", message=".*pin_memory.*MPS.*", category=UserWarning)
+
 from docling.document_converter import DocumentConverter
 import re
 from datetime import datetime
@@ -12,31 +17,121 @@ class CapuchinHealthDataParser:
     def __init__(self):
         self.converter = DocumentConverter()
         
-        # Common test name patterns to look for in documents
+        # Comprehensive test name patterns based on your project data
         self.test_patterns = {
-            'RBC': r'(?:RBC|Red Blood Cells?|Erythrocytes?)\s*:?\s*([\d.]+)',
-            'WBC': r'(?:WBC|White Blood Cells?|Leukocytes?)\s*:?\s*([\d.]+)',
-            'Hemoglobin': r'(?:Hemoglobin|Hgb|HGB)\s*:?\s*([\d.]+)',
-            'Hematocrit': r'(?:Hematocrit|HCT|Hct)\s*:?\s*([\d.]+)',
-            'Glucose': r'(?:Glucose|Blood Sugar|GLU)\s*:?\s*([\d.]+)',
-            'ALT': r'(?:ALT|SGPT|Alanine Aminotransferase)\s*:?\s*([\d.]+)',
-            'AST': r'(?:AST|SGOT|Aspartate Aminotransferase)\s*:?\s*([\d.]+)',
-            'Creatinine': r'(?:Creatinine|CREA)\s*:?\s*([\d.]+)',
-            'BUN': r'(?:BUN|Blood Urea Nitrogen|Urea)\s*:?\s*([\d.]+)',
-            'Weight': r'(?:Weight|Body Weight)\s*:?\s*([\d.]+)\s*(?:kg|kilograms?)',
+            # Hematology
+            'RBC': r'(?:RBC|Red Blood Cells?|Erythrocytes?)\s*:?\s*([\d.<>]+)',
+            'WBC': r'(?:WBC|White Blood Cells?|Leukocytes?)\s*:?\s*([\d.<>]+)',
+            'Hemoglobin': r'(?:Hemoglobin|HEMOGLOBIN|Hgb|HGB)\s*:?\s*([\d.<>]+)',
+            'Hematocrit': r'(?:Hematocrit|HEMATOCRIT|HCT|Hct)\s*:?\s*([\d.<>]+)',
+            'MCV': r'(?:MCV)\s*:?\s*([\d.<>]+)',
+            'MCH': r'(?:MCH)\s*:?\s*([\d.<>]+)',
+            'MCHC': r'(?:MCHC)\s*:?\s*([\d.<>]+)',
+            'RDW%': r'(?:RDW%?)\s*:?\s*([\d.<>]+)',
+            'Platelets': r'(?:Platelets?|Platelet Count|PLT)\s*:?\s*([\d.<>]+)',
+            'MPV': r'(?:MPV)\s*:?\s*([\d.<>]+)',
+            
+            # White Blood Cell Differential
+            '% Neutrophils': r'(?:%\s*Neutrophils?|Neutrophils?\s*%)\s*:?\s*([\d.<>]+)',
+            '% Lymphocytes': r'(?:%\s*Lymphocytes?|Lymphocytes?\s*%)\s*:?\s*([\d.<>]+)',
+            '% Monocytes': r'(?:%\s*Monocytes?|Monocytes?\s*%)\s*:?\s*([\d.<>]+)',
+            '% Eosinophils': r'(?:%\s*Eosinophils?|Eosinophils?\s*%)\s*:?\s*([\d.<>]+)',
+            '% Basophils': r'(?:%\s*Basophils?|Basophils?\s*%)\s*:?\s*([\d.<>]+)',
+            '% Bands': r'(?:%\s*Bands?|Bands?\s*%)\s*:?\s*([\d.<>]+)',
+            
+            # Absolute Counts
+            'Neutrophils': r'(?:Neutrophils?|ABSOLUTE POLYS)\s*:?\s*([\d.<>]+)',
+            'Lymphocytes': r'(?:Lymphocytes?|ABSOLUTE LYMPHS)\s*:?\s*([\d.<>]+)',
+            'Monocytes': r'(?:Monocytes?|ABSOLUTE MONOS)\s*:?\s*([\d.<>]+)',
+            'Eosinophils': r'(?:Eosinophils?|ABSOLUTE EOS)\s*:?\s*([\d.<>]+)',
+            'Basophils': r'(?:Basophils?|ABSOLUTE BASOS)\s*:?\s*([\d.<>]+)',
+            'Bands': r'(?:Bands?|ABSOLUTE BANDS)\s*:?\s*([\d.<>]+)',
+            
+            # Chemistry Panel
+            'Glucose': r'(?:Glucose|GLU|Blood Sugar)\s*:?\s*([\d.<>]+)',
+            'BUN': r'(?:BUN|Blood Urea Nitrogen|Urea Nitrogen)\s*:?\s*([\d.<>]+)',
+            'Creatinine': r'(?:Creatinine|CREA)\s*:?\s*([\d.<>]+)',
+            'BUN/Creatinine Ratio': r'(?:BUN[/:]\s*Creatinine(?:\s*Ratio)?)\s*:?\s*([\d.<>]+)',
+            'Phosphorus': r'(?:Phosphorus|Phosphorous|PHOS)\s*:?\s*([\d.<>]+)',
+            'Calcium': r'(?:Calcium|Ca)\s*:?\s*([\d.<>]+)',
+            'Magnesium': r'(?:Magnesium|MAGNESIUM)\s*:?\s*([\d.<>]+)',
+            
+            # Electrolytes
+            'Sodium': r'(?:Sodium|Na)\s*:?\s*([\d.<>]+)',
+            'Potassium': r'(?:Potassium|K)\s*:?\s*([\d.<>]+)',
+            'Chloride': r'(?:Chloride|Cl)\s*:?\s*([\d.<>]+)',
+            'TCO2': r'(?:TCO2|Bicarbonate)\s*:?\s*([\d.<>]+)',
+            'Anion Gap': r'(?:Anion Gap)\s*:?\s*([\d.<>]+)',
+            'Na/K Ratio': r'(?:Na[/:]\s*K(?:\s*Ratio)?)\s*:?\s*([\d.<>]+)',
+            
+            # Protein Tests
+            'Total Protein': r'(?:Total Protein|TP)\s*:?\s*([\d.<>]+)',
+            'Albumin': r'(?:Albumin|ALB)\s*:?\s*([\d.<>]+)',
+            'Globulin': r'(?:Globulin|GLOBULIN|GLOB)\s*:?\s*([\d.<>]+)',
+            'A/G Ratio': r'(?:A/G(?:\s*Ratio)?|Alb[:/]Glob(?:\s*Ratio)?|Albumin[:/]Globulin(?:\s*Ratio)?)\s*:?\s*([\d.<>]+)',
+            
+            # Liver Function
+            'ALT': r'(?:ALT|SGPT|Alanine Aminotransferase)\s*:?\s*([\d.<>]+)',
+            'AST': r'(?:AST|SGOT|Aspartate Aminotransferase)\s*:?\s*([\d.<>]+)',
+            'ALP': r'(?:ALP|ALKP|Alkaline Phosphatase|Alk Phosphatase)\s*:?\s*([\d.<>]+)',
+            'GGT': r'(?:GGT|GGTP|Gamma-Glutamyl Transferase)\s*:?\s*([\d.<>]+)',
+            'Total Bilirubin': r'(?:Total Bilirubin|Bilirubin Total|TBIL|Bilirubin - Total)\s*:?\s*([\d.<>]+)',
+            'Bilirubin - Conjugated': r'(?:Bilirubin - Conjugated|Direct Bilirubin)\s*:?\s*([\d.<>]+)',
+            'Bilirubin - Unconjugated': r'(?:Bilirubin - Unconjugated|Indirect Bilirubin)\s*:?\s*([\d.<>]+)',
+            
+            # Lipids
+            'Cholesterol': r'(?:Cholesterol|CHOL)\s*:?\s*([\d.<>]+)',
+            'Triglycerides': r'(?:Triglycerides|TRIGLYCERIDES)\s*:?\s*([\d.<>]+)',
+            
+            # Pancreatic
+            'Amylase': r'(?:Amylase|AMYLASE|AMYL)\s*:?\s*([\d.<>]+)',
+            'Lipase': r'(?:Lipase|LIPASE)\s*:?\s*([\d.<>]+)',
+            
+            # Muscle/Cardiac
+            'CPK': r'(?:CPK|Creatine Kinase)\s*:?\s*([\d.<>]+)',
+            
+            # Kidney Function
+            'IDEXX SDMA': r'(?:IDEXX SDMA|SDMA)\s*:?\s*([\d.<>]+)',
+            'OSMOLALITY CALCULATED': r'(?:OSMOLALITY CALCULATED|Osmolality)\s*:?\s*([\d.<>]+)',
+            
+            # Thyroid
+            'T3 Assay': r'(?:T3 Assay|T3)\s*:?\s*([\d.<>]+)',
+            'T4 Total': r'(?:T4 Total|T4)\s*:?\s*([\d.<>]+)',
+            'Thyroxine Free': r'(?:Thyroxine Free|Free T4)\s*:?\s*([\d.<>]+)',
+            
+            # Other
+            'Fructosamine': r'(?:Fructosamine)\s*:?\s*([\d.<>]+)',
+            'GIARDIA ELISA': r'(?:GIARDIA ELISA)\s*:?\s*(\w+)',
+            'Hemolysis Index': r'(?:Hemolysis Index)\s*:?\s*(\w+)',
+            'Lipemia Index': r'(?:Lipemia Index)\s*:?\s*(\w+)',
+            'PLATELET EST': r'(?:PLATELET EST)\s*:?\s*(\w+)',
+            
+            # Physical Measurements
+            'Weight': r'(?:Weight|Body Weight)\s*:?\s*([\d.<>]+)\s*(?:kg|kilograms?)',
             'BCS': r'(?:BCS|Body Condition Score)\s*:?\s*(\d+)',
         }
         
-        # Unit patterns
+        # Comprehensive unit patterns based on your data
         self.unit_patterns = {
             'mg/dL': r'mg/dL',
             'g/dL': r'g/dL',
-            'M/µL': r'M/µL|10\^6/µL',
-            'K/µL': r'K/µL|10\^3/µL',
+            'M/µL': r'M/µL|M/μL|MILL/CMM|10\^6/µL',
+            'K/µL': r'K/µL|K/μL|THDS/CMM|10\^3/µL',
             '%': r'%',
             'U/L': r'U/L|IU/L',
             'kg': r'kg|kilograms?',
             'mmol/L': r'mmol/L',
+            'mEq/L': r'mEq/L',
+            'fL': r'fL',
+            'pg': r'pg',
+            '/µL': r'/µL|/μL',
+            'µg/dL': r'µg/dL|μg/dL',
+            'ug/dL': r'ug/dL',
+            'ng/dL': r'ng/dL',
+            'pmol/L': r'pmol/L',
+            'micromoles/L': r'micromoles/L',
+            'mOsm/L': r'mOsm/L',
+            'RATIO': r'RATIO',
         }
         
     def parse_pdf(self, pdf_path: str) -> pd.DataFrame:
@@ -128,44 +223,89 @@ class CapuchinHealthDataParser:
     def _extract_animal_id(self, section: str) -> str:
         """Extract animal ID from section."""
         patterns = [
-            r'(?:Animal ID|Subject ID|Monkey ID|ID)\s*:?\s*(\w+)',
+            r'(?:Animal ID|Subject ID|Monkey ID|Patient ID|ID)\s*:?\s*(\w+)',
+            r'(?:LAB ID)\s*:?\s*(\d+)',  # IDEXX Lab ID
+            r'(?:ORDER ID)\s*:?\s*(\d+)',  # IDEXX Order ID
             r'(?:Name|Subject)\s*:?\s*(\w+)',
             r'#(\w+)',  # Sometimes IDs are marked with #
+            r'(?:PATIENT ID)\s*:?\s*(\w+)',  # From IDEXX format
         ]
         
         for pattern in patterns:
             match = re.search(pattern, section, re.IGNORECASE)
             if match:
-                return match.group(1)
+                id_value = match.group(1).strip()
+                if id_value:  # Only return if not empty
+                    return id_value
                 
+        # If no ID found, try to extract from lab ID or order ID as fallback
+        lab_id_match = re.search(r'LAB ID\s*:?\s*(\d+)', section, re.IGNORECASE)
+        if lab_id_match:
+            return f"LAB_{lab_id_match.group(1)}"
+            
         return "Unknown"
     
     def _extract_date(self, section: str) -> Optional[datetime]:
         """Extract date from section."""
+        # Look for specific date fields first
+        date_field_patterns = [
+            r'(?:Collection Date|DATE OF RESULT|Date of Result)\s*:?\s*([^\n]+)',
+            r'(?:Date|DATE)\s*:?\s*([^\n]+)',
+            r'(?:COLLECTION DATE)\s*:?\s*([^\n]+)',
+            r'(?:DATE OF RECEIPT)\s*:?\s*([^\n]+)',
+        ]
+        
+        for field_pattern in date_field_patterns:
+            field_match = re.search(field_pattern, section, re.IGNORECASE)
+            if field_match:
+                date_str = field_match.group(1).strip()
+                # Try to parse the date
+                parsed_date = self._parse_date_string(date_str)
+                if parsed_date:
+                    return parsed_date
+        
+        # If no specific field found, look for date patterns anywhere
         date_patterns = [
             r'(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})',
             r'(\d{4}[/-]\d{1,2}[/-]\d{1,2})',
             r'((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4})',
             r'(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4})',
+            r'(\d{1,2}-(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4})',
         ]
         
         for pattern in date_patterns:
             match = re.search(pattern, section, re.IGNORECASE)
             if match:
                 date_str = match.group(1)
-                # Try multiple date parsing formats
-                for fmt in ['%m/%d/%Y', '%Y-%m-%d', '%d/%m/%Y', '%B %d, %Y', '%d %B %Y']:
-                    try:
-                        return pd.to_datetime(date_str, format=fmt)
-                    except:
-                        continue
-                # If specific formats fail, try pandas general parser
-                try:
-                    return pd.to_datetime(date_str)
-                except:
-                    pass
+                parsed_date = self._parse_date_string(date_str)
+                if parsed_date:
+                    return parsed_date
                     
         return None
+    
+    def _parse_date_string(self, date_str: str) -> Optional[datetime]:
+        """Parse a date string into a datetime object."""
+        # Clean the date string
+        date_str = date_str.strip()
+        
+        # Try multiple date parsing formats
+        formats = [
+            '%m/%d/%Y', '%Y-%m-%d', '%d/%m/%Y', '%m-%d-%Y', '%d-%m-%Y',
+            '%B %d, %Y', '%d %B %Y', '%b %d, %Y', '%d %b %Y',
+            '%d-%b-%Y', '%m/%d/%y', '%d/%m/%y',  # 2-digit year formats
+        ]
+        
+        for fmt in formats:
+            try:
+                return pd.to_datetime(date_str, format=fmt)
+            except:
+                continue
+        
+        # If specific formats fail, try pandas general parser
+        try:
+            return pd.to_datetime(date_str)
+        except:
+            return None
     
     def _extract_age(self, section: str) -> Optional[float]:
         """Extract age in years from section."""
@@ -187,10 +327,27 @@ class CapuchinHealthDataParser:
     
     def _extract_sex(self, section: str) -> str:
         """Extract sex from section."""
+        # Look for explicit sex/gender fields
+        sex_patterns = [
+            r'(?:Sex|Gender)\s*:?\s*(Male|Female|M|F)',
+            r'(?:SEX|GENDER)\s*:?\s*(Male|Female|M|F)',
+        ]
+        
+        for pattern in sex_patterns:
+            match = re.search(pattern, section, re.IGNORECASE)
+            if match:
+                sex_value = match.group(1).upper()
+                if sex_value in ['M', 'MALE']:
+                    return 'Male'
+                elif sex_value in ['F', 'FEMALE']:
+                    return 'Female'
+        
+        # Fallback to looking for male/female in text
         if re.search(r'\b(?:male|M)\b', section, re.IGNORECASE) and not re.search(r'\bfemale\b', section, re.IGNORECASE):
             return 'Male'
         elif re.search(r'\b(?:female|F)\b', section, re.IGNORECASE):
             return 'Female'
+            
         return 'Unknown'
     
     def _extract_test_results(self, section: str) -> List[Tuple[str, str, str]]:
@@ -218,39 +375,132 @@ class CapuchinHealthDataParser:
         """Extract test results from table-like structures in the text."""
         results = []
         
-        # Look for patterns that might indicate tabular data
-        # Pattern: test name followed by value and possibly units
-        table_pattern = r'([A-Za-z\s]+?)\s+([\d.<>]+)\s*([A-Za-z/%µ]+)?'
+        # Define test name variations for better matching
+        test_variations = {
+            'ALB': ['ALB', 'Albumin'],
+            'ALKP': ['ALKP', 'ALP', 'Alkaline Phosphatase', 'Alk Phosphatase'],
+            'ALT': ['ALT', 'SGPT'],
+            'AST': ['AST', 'SGOT'],
+            'AMYL': ['AMYL', 'AMYLASE', 'Amylase'],
+            'BUN': ['BUN', 'Blood Urea Nitrogen', 'Urea Nitrogen'],
+            'Ca': ['Ca', 'Calcium'],
+            'CHOL': ['CHOL', 'Cholesterol'],
+            'CREA': ['CREA', 'Creatinine'],
+            'Cl': ['Cl', 'Chloride'],
+            'GGT': ['GGT', 'GGTP'],
+            'GLOB': ['GLOB', 'GLOBULIN', 'Globulin'],
+            'GLU': ['GLU', 'Glucose'],
+            'HCT': ['HCT', 'HEMATOCRIT', 'Hematocrit'],
+            'HGB': ['HGB', 'HEMOGLOBIN', 'Hemoglobin'],
+            'K': ['K', 'Potassium'],
+            'Na': ['Na', 'Sodium'],
+            'PHOS': ['PHOS', 'Phosphorus', 'Phosphorous'],
+            'PLT': ['PLT', 'Platelets', 'Platelet Count'],
+            'TBIL': ['TBIL', 'Total Bilirubin', 'Bilirubin Total'],
+            'TP': ['TP', 'Total Protein'],
+            'WBC': ['WBC', 'White Blood Cell'],
+            'RBC': ['RBC', 'Red Blood Cell'],
+        }
         
-        # Find lines that look like table rows
+        # Pattern for table rows with test results
+        patterns = [
+            # Pattern 1: Test name = value unit (e.g., "ALB = 4.87 g/dl")
+            r'([A-Za-z][A-Za-z0-9\s/:%-]*?)\s*=\s*([\d.<>]+)\s*([A-Za-z/%µμ]+)?',
+            # Pattern 2: Test name: value unit (e.g., "Glucose: 89 mg/dL")
+            r'([A-Za-z][A-Za-z0-9\s/:%-]*?)\s*:\s*([\d.<>]+)\s*([A-Za-z/%µμ]+)?',
+            # Pattern 3: Test name value unit (e.g., "RBC 5.46 M/µL")
+            r'^([A-Za-z][A-Za-z0-9\s/:%-]*?)\s+([\d.<>]+)\s+([A-Za-z/%µμ]+)',
+            # Pattern 4: Test name (tab/spaces) value (tab/spaces) unit
+            r'([A-Za-z][A-Za-z0-9\s/:%-]*?)\s{2,}([\d.<>]+)\s*([A-Za-z/%µμ]+)?',
+        ]
+        
+        # Split into lines and process each
         lines = section.split('\n')
         for line in lines:
-            # Skip empty lines and headers
-            if not line.strip() or 'Test' in line or 'Result' in line:
+            line = line.strip()
+            
+            # Skip empty lines, headers, and reference ranges
+            if not line or any(header in line.lower() for header in ['test', 'result', 'reference', 'range', 'indicator']):
                 continue
-                
-            # Try to match table row pattern
-            match = re.match(table_pattern, line.strip())
-            if match:
-                test_name = match.group(1).strip()
-                value = match.group(2).strip()
-                units = match.group(3).strip() if match.group(3) else ''
-                
-                # Check if this matches any known test
-                for known_test in self.test_patterns.keys():
-                    if known_test.lower() in test_name.lower():
-                        results.append((known_test, value, units))
-                        break
+            
+            # Try each pattern
+            matched = False
+            for pattern in patterns:
+                match = re.match(pattern, line, re.IGNORECASE)
+                if match:
+                    test_name_raw = match.group(1).strip()
+                    value = match.group(2).strip()
+                    units = match.group(3).strip() if match.group(3) else ''
+                    
+                    # Standardize test name
+                    test_name = None
+                    test_name_lower = test_name_raw.lower()
+                    
+                    # Check against known variations
+                    for standard_name, variations in test_variations.items():
+                        if any(var.lower() == test_name_lower for var in variations):
+                            test_name = standard_name
+                            break
+                    
+                    # If not found in variations, check against our test patterns
+                    if not test_name:
+                        for pattern_name in self.test_patterns.keys():
+                            if pattern_name.lower() in test_name_lower or test_name_lower in pattern_name.lower():
+                                test_name = pattern_name
+                                break
+                    
+                    # If still not found, use the raw name
+                    if not test_name:
+                        test_name = test_name_raw
+                    
+                    results.append((test_name, value, units))
+                    matched = True
+                    break
+            
+            # If no pattern matched, try to extract from simpler formats
+            if not matched:
+                # Check if line contains a number that might be a result
+                number_match = re.search(r'([\d.<>]+)', line)
+                if number_match:
+                    # Look for test name before the number
+                    before_number = line[:number_match.start()].strip()
+                    if before_number and len(before_number) > 1:
+                        value = number_match.group(1)
+                        # Look for units after the number
+                        after_number = line[number_match.end():].strip()
+                        units = ''
+                        if after_number:
+                            unit_match = re.match(r'([A-Za-z/%µμ]+)', after_number)
+                            if unit_match:
+                                units = unit_match.group(1)
                         
+                        results.append((before_number, value, units))
+        
         return results
     
-    def _find_units_near_match(self, text: str, start_pos: int, search_distance: int = 20) -> str:
+    def _find_units_near_match(self, text: str, match_pos: int, search_distance: int = 50) -> str:
         """Find units near a matched value."""
         # Look ahead for units
-        search_text = text[start_pos:start_pos + search_distance]
+        end_pos = min(match_pos + search_distance, len(text))
+        search_text_after = text[match_pos:end_pos]
         
+        # Also look behind for units (sometimes units come before values)
+        start_pos = max(0, match_pos - search_distance)
+        search_text_before = text[start_pos:match_pos]
+        
+        # Check after the value first (most common)
         for unit, pattern in self.unit_patterns.items():
-            if re.search(pattern, search_text):
+            if re.search(pattern, search_text_after[:20]):  # Check immediate vicinity first
+                return unit
+        
+        # If not found after, check before
+        for unit, pattern in self.unit_patterns.items():
+            if re.search(pattern, search_text_before[-20:]):  # Check end of before text
+                return unit
+        
+        # Check larger area after if still not found
+        for unit, pattern in self.unit_patterns.items():
+            if re.search(pattern, search_text_after):
                 return unit
                 
         return ''
