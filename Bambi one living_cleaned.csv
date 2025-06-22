@@ -1,0 +1,669 @@
+date,test,result,units
+1997-09-30,Glucose,122.0,mg/dL
+2003-09-30,% Basophils,3.0,%
+2003-09-30,% Eosinophils,8.0,%
+2003-09-30,% Lymphocytes,56.0,%
+2003-09-30,% Monocytes,6.0,%
+2003-09-30,% Neutrophils,27.0,%
+2003-09-30,ALP,36.0,U/L
+2003-09-30,ALT,58.0,U/L
+2003-09-30,AST,36.0,U/L
+2003-09-30,Albumin,4.4,g/dL
+2003-09-30,BUN,19.0,mg/dL
+2003-09-30,Basophils (Absolute),318.0,nan
+2003-09-30,Calcium,8.8,mg/dL
+2003-09-30,Chloride,105.0,mmol/L
+2003-09-30,Cholesterol,154.0,mg/dL
+2003-09-30,Creatine Kinase,460.0,U/L
+2003-09-30,Creatinine,0.7,mg/dL
+2003-09-30,Eosinophils (Absolute),848.0,nan
+2003-09-30,Fructosamine,195.0,umol/L
+2003-09-30,Globulin,2.5,g/dL
+2003-09-30,Glucose,117.0,mg/dL
+2003-09-30,Hematocrit,36.1,%
+2003-09-30,Hemoglobin,12.2,g/dL
+2003-09-30,Lymphocytes (Absolute),5936.0,nan
+2003-09-30,MCH,25.1,nan
+2003-09-30,MCHC,33.8,nan
+2003-09-30,MCV,74.0,nan
+2003-09-30,Monocytes (Absolute),636.0,nan
+2003-09-30,Neutrophils (Absolute),2862.0,nan
+2003-09-30,Phosphorus,5.5,mg/dL
+2003-09-30,Platelets,0.635,10^3/uL
+2003-09-30,Potassium,3.1,mmol/L
+2003-09-30,RBC,4.87,10^6/uL
+2003-09-30,Sodium,145.0,mmol/L
+2003-09-30,Total Bilirubin,0.1,mg/dL
+2003-09-30,Total Protein,6.9,g/dL
+2003-09-30,WBC,0.0106,10^3/uL
+2006-07-14,% Eosinophils,5.0,%
+2006-07-14,% Lymphocytes,20.0,%
+2006-07-14,% Monocytes,4.0,%
+2006-07-14,% Neutrophils,70.0,%
+2006-07-14,A:G Ratio,1.4,
+2006-07-14,ALP,33.0,U/L
+2006-07-14,ALT,63.0,U/L
+2006-07-14,AST,103.0,U/L
+2006-07-14,Albumin,3.7,g/dL
+2006-07-14,Amylase,71.0,U/L
+2006-07-14,BUN,20.0,mg/dL
+2006-07-14,BUN:Creatinine Ratio,25.0,
+2006-07-14,Calcium,10.3,mg/dL
+2006-07-14,Chloride,116.0,mmol/L
+2006-07-14,Cholesterol,130.0,mg/dL
+2006-07-14,Creatine Kinase,6562.0,U/L
+2006-07-14,Creatinine,0.8,mg/dL
+2006-07-14,Eosinophils (Absolute),625.0,nan
+2006-07-14,Globulin,2.7,g/dL
+2006-07-14,Glucose,114.0,mg/dL
+2006-07-14,Hematocrit,34.5,%
+2006-07-14,Hemoglobin,11.1,g/dL
+2006-07-14,Lipase,127.0,U/L
+2006-07-14,Lymphocytes (Absolute),2500.0,nan
+2006-07-14,MCH,23.9,pg
+2006-07-14,MCHC,32.2,g/dL
+2006-07-14,MCV,74.0,fL
+2006-07-14,Magnesium,1.5,mmol/L
+2006-07-14,Monocytes (Absolute),500.0,nan
+2006-07-14,Neutrophils (Absolute),8750.0,nan
+2006-07-14,Phosphorus,5.7,mg/dL
+2006-07-14,Platelets,442.0,10^3/uL
+2006-07-14,Potassium,3.8,mmol/L
+2006-07-14,RBC,4.65,10^6/uL
+2006-07-14,Sodium,149.0,mmol/L
+2006-07-14,Total Bilirubin,0.1,mg/dL
+2006-07-14,Total Protein,6.4,g/dL
+2006-07-14,Triglycerides,98.0,mg/dL
+2006-07-14,WBC,12.5,10^3/uL
+2007-08-28,ALT,128.0,U/L
+2007-08-28,AST,73.0,U/L
+2007-08-28,Albumin,5.1,g/dL
+2007-08-28,Amylase,378.0,U/L
+2007-08-28,BUN,19.0,mg/dL
+2007-08-28,Basophils (Absolute),0.0,%
+2007-08-28,Calcium,10.9,mg/dL
+2007-08-28,Cholesterol,188.0,mg/dL
+2007-08-28,Creatine Kinase,331.0,U/L
+2007-08-28,Creatinine,0.6,mg/dL
+2007-08-28,Eosinophils (Absolute),2.0,%
+2007-08-28,Glucose,118.0,mg/dL
+2007-08-28,Hematocrit,37.0,%
+2007-08-28,Hemoglobin,13.9,g/dL
+2007-08-28,Lymphocytes (Absolute),66.0,%
+2007-08-28,MCH,23.0,pg
+2007-08-28,MCHC,38.0,%
+2007-08-28,MCV,61.0,fL
+2007-08-28,Monocytes (Absolute),1.0,%
+2007-08-28,Phosphorus,2.2,mg/dL
+2007-08-28,RBC,6.03,10^6/uL
+2007-08-28,Total Protein,188.0,g/dL
+2007-08-28,WBC,0.0094,10^3/uL
+2009-06-02,ALP,27.0,nan
+2009-06-02,ALT,99.0,nan
+2009-06-02,AST,24.0,nan
+2009-06-02,Albumin,3.7,nan
+2009-06-02,BUN,28.0,nan
+2009-06-02,Calcium,9.7,nan
+2009-06-02,Chloride,113.0,nan
+2009-06-02,Cholesterol,113.0,nan
+2009-06-02,Creatine Kinase,538.0,nan
+2009-06-02,Creatinine,0.8,nan
+2009-06-02,Eosinophils (Absolute),1.0,nan
+2009-06-02,Globulin,3.0,nan
+2009-06-02,Glucose,119.0,nan
+2009-06-02,Lymphocytes (Absolute),27.0,nan
+2009-06-02,Monocytes (Absolute),5.0,nan
+2009-06-02,Na:K Ratio,53.0,nan
+2009-06-02,Neutrophils (Absolute),67.0,nan
+2009-06-02,Phosphorus,3.0,nan
+2009-06-02,Potassium,2.8,nan
+2009-06-02,RBC,5.75,nan
+2009-06-02,Sodium,149.0,nan
+2009-06-02,Total Bilirubin,0.2,nan
+2009-06-02,Total Protein,6.7,nan
+2009-06-02,WBC,11.4,nan
+2009-09-22,ALP,65.0,nan
+2009-09-22,ALT,68.0,nan
+2009-09-22,AST,27.0,nan
+2009-09-22,Albumin,4.9,nan
+2009-09-22,BUN,15.0,nan
+2009-09-22,Calcium,11.0,nan
+2009-09-22,Chloride,118.0,nan
+2009-09-22,Cholesterol,206.0,nan
+2009-09-22,Creatine Kinase,525.0,nan
+2009-09-22,Creatinine,0.7,nan
+2009-09-22,Eosinophils (Absolute),2.0,nan
+2009-09-22,Globulin,2.8,nan
+2009-09-22,Glucose,77.0,nan
+2009-09-22,Hematocrit,42.7,nan
+2009-09-22,Hemoglobin,14.6,nan
+2009-09-22,Lymphocytes (Absolute),29.0,nan
+2009-09-22,MCH,25.4,nan
+2009-09-22,MCHC,34.2,nan
+2009-09-22,MCV,74.0,nan
+2009-09-22,Monocytes (Absolute),3.0,nan
+2009-09-22,Na:K Ratio,49.0,nan
+2009-09-22,Neutrophils (Absolute),66.0,nan
+2009-09-22,Phosphorus,3.2,nan
+2009-09-22,Platelets,396.0,nan
+2009-09-22,Potassium,3.0,nan
+2009-09-22,Sodium,146.0,nan
+2009-09-22,Total Bilirubin,0.1,nan
+2009-09-22,Total Protein,7.7,nan
+2009-09-22,WBC,11.4,nan
+2011-03-31,% Eosinophils,2.0,%
+2011-03-31,% Lymphocytes,29.0,%
+2011-03-31,% Monocytes,3.0,%
+2011-03-31,% Neutrophils,66.0,%
+2011-03-31,ALP,68.0,U/L
+2011-03-31,ALT,39.0,U/L
+2011-03-31,AST,20.0,U/L
+2011-03-31,Albumin,4.5,g/dL
+2011-03-31,BUN,16.0,mg/dL
+2011-03-31,Calcium,10.8,mg/dL
+2011-03-31,Chloride,112.0,mmol/L
+2011-03-31,Cholesterol,182.0,mg/dL
+2011-03-31,Creatine Kinase,430.0,U/L
+2011-03-31,Creatinine,0.6,mg/dL
+2011-03-31,Globulin,2.5,g/dL
+2011-03-31,Glucose,65.0,mg/dL
+2011-03-31,Hematocrit,48.6,%
+2011-03-31,Hemoglobin,17.0,g/dL
+2011-03-31,MCH,24.7,pg
+2011-03-31,MCHC,35.0,g/dL
+2011-03-31,MCV,71.0,fL
+2011-03-31,Na:K Ratio,62.0,nan
+2011-03-31,Phosphorus,1.8,mg/dL
+2011-03-31,Platelets,475.0,nan
+2011-03-31,Potassium,2.3,mmol/L
+2011-03-31,RBC,0.00688,10^3/uL
+2011-03-31,Sodium,143.0,mmol/L
+2011-03-31,Total Bilirubin,0.1,mg/dL
+2011-03-31,Total Protein,7.0,g/dL
+2011-03-31,WBC,0.0083,/uL
+2012-10-02,% Eosinophils,4.0,%
+2012-10-02,% Lymphocytes,25.0,%
+2012-10-02,% Monocytes,3.0,%
+2012-10-02,% Neutrophils,68.0,%
+2012-10-02,ALP,65.0,U/L
+2012-10-02,ALT,63.0,U/L
+2012-10-02,AST,25.0,U/L
+2012-10-02,Albumin,5.6,g/dL
+2012-10-02,BUN,14.0,mg/dL
+2012-10-02,Basophils (Absolute),0.0,nan
+2012-10-02,Calcium,12.0,mg/dL
+2012-10-02,Chloride,116.0,mmol/L
+2012-10-02,Cholesterol,206.0,mg/dL
+2012-10-02,Creatine Kinase,352.0,U/L
+2012-10-02,Creatinine,0.8,mg/dL
+2012-10-02,Eosinophils (Absolute),0.34,10^3/uL
+2012-10-02,Globulin,2.9,g/dL
+2012-10-02,Glucose,155.0,mg/dL
+2012-10-02,Hematocrit,59.9,%
+2012-10-02,Hemoglobin,18.8,g/dL
+2012-10-02,Lymphocytes (Absolute),2.125,10^3/uL
+2012-10-02,MCH,24.0,pg
+2012-10-02,MCHC,31.4,g/dL
+2012-10-02,MCV,77.0,fL
+2012-10-02,Monocytes (Absolute),0.255,10^3/uL
+2012-10-02,Na:K Ratio,47.0,nan
+2012-10-02,Neutrophils (Absolute),5.78,10^3/uL
+2012-10-02,Phosphorus,3.3,mg/dL
+2012-10-02,Platelets,352.0,10^3/uL
+2012-10-02,Potassium,3.2,mmol/L
+2012-10-02,RBC,7.82,10^6/uL
+2012-10-02,Sodium,150.0,mmol/L
+2012-10-02,Total Bilirubin,0.1,mg/dL
+2012-10-02,Total Protein,8.5,g/dL
+2012-10-02,WBC,8.5,10^3/uL
+2013-01-08,% Eosinophils,3.0,%
+2013-01-08,% Lymphocytes,42.0,%
+2013-01-08,% Monocytes,3.0,%
+2013-01-08,% Neutrophils,52.0,%
+2013-01-08,ALP,69.0,U/L
+2013-01-08,ALT,144.0,U/L
+2013-01-08,AST,42.0,U/L
+2013-01-08,Albumin,5.2,g/dL
+2013-01-08,BUN,14.0,mg/dL
+2013-01-08,Basophils (Absolute),0.0,nan
+2013-01-08,Calcium,11.8,mg/dL
+2013-01-08,Chloride,114.0,mmol/L
+2013-01-08,Cholesterol,202.0,mg/dL
+2013-01-08,Creatine Kinase,261.0,U/L
+2013-01-08,Creatinine,0.8,mg/dL
+2013-01-08,Eosinophils (Absolute),0.51,10^3/uL
+2013-01-08,Globulin,3.0,g/dL
+2013-01-08,Glucose,115.0,mg/dL
+2013-01-08,Hematocrit,51.1,%
+2013-01-08,Hemoglobin,16.0,g/dL
+2013-01-08,Lymphocytes (Absolute),7.140000000000001,10^3/uL
+2013-01-08,MCH,24.3,pg
+2013-01-08,MCHC,31.3,g/dL
+2013-01-08,MCV,78.0,fL
+2013-01-08,Monocytes (Absolute),0.51,10^3/uL
+2013-01-08,Na:K Ratio,48.0,nan
+2013-01-08,Neutrophils (Absolute),8.84,10^3/uL
+2013-01-08,Phosphorus,3.1,mg/dL
+2013-01-08,Platelets,514.0,10^3/uL
+2013-01-08,Potassium,3.1,mmol/L
+2013-01-08,RBC,6.58,10^6/uL
+2013-01-08,Sodium,150.0,mmol/L
+2013-01-08,Total Bilirubin,0.1,mg/dL
+2013-01-08,Total Protein,8.2,g/dL
+2013-01-08,WBC,17.0,10^3/uL
+2014-02-04,% Basophils,1.0,%
+2014-02-04,% Eosinophils,2.0,%
+2014-02-04,% Lymphocytes,36.0,%
+2014-02-04,% Monocytes,7.0,%
+2014-02-04,% Neutrophils,54.0,%
+2014-02-04,ALP,59.0,U/L
+2014-02-04,ALT,99.0,U/L
+2014-02-04,AST,30.0,U/L
+2014-02-04,Albumin,5.1,g/dL
+2014-02-04,BUN,11.0,mg/dL
+2014-02-04,Basophils (Absolute),0.101,10^3/uL
+2014-02-04,Calcium,12.1,mg/dL
+2014-02-04,Chloride,116.0,mmol/L
+2014-02-04,Cholesterol,187.0,mg/dL
+2014-02-04,Creatine Kinase,264.0,U/L
+2014-02-04,Creatinine,0.7,mg/dL
+2014-02-04,Eosinophils (Absolute),0.202,10^3/uL
+2014-02-04,Fructosamine,254.0,umol/L
+2014-02-04,Globulin,2.6,g/dL
+2014-02-04,Glucose,191.0,mg/dL
+2014-02-04,Hematocrit,51.0,%
+2014-02-04,Hemoglobin,16.5,g/dL
+2014-02-04,Lymphocytes (Absolute),3.636,10^3/uL
+2014-02-04,MCH,25.8,pg
+2014-02-04,MCHC,32.4,g/dL
+2014-02-04,MCV,80.0,fL
+2014-02-04,Monocytes (Absolute),0.707,10^3/uL
+2014-02-04,Na:K Ratio,53.0,nan
+2014-02-04,Neutrophils (Absolute),5.454,10^3/uL
+2014-02-04,Phosphorus,2.4,mg/dL
+2014-02-04,Platelets,460.0,10^3/uL
+2014-02-04,Potassium,2.8,mmol/L
+2014-02-04,RBC,6.4,10^6/uL
+2014-02-04,Sodium,147.0,mmol/L
+2014-02-04,Total Bilirubin,0.1,mg/dL
+2014-02-04,Total Protein,7.7,g/dL
+2014-02-04,WBC,10.1,10^3/uL
+2014-07-13,% Eosinophils,1.0,%
+2014-07-13,% Lymphocytes,52.0,%
+2014-07-13,% Monocytes,4.0,%
+2014-07-13,% Neutrophils,43.0,%
+2014-07-13,ALP,49.0,U/L
+2014-07-13,ALT,102.0,U/L
+2014-07-13,AST,37.0,U/L
+2014-07-13,Albumin,5.0,g/dL
+2014-07-13,BUN,13.0,mg/dL
+2014-07-13,Basophils (Absolute),0.0,10^3/uL
+2014-07-13,Calcium,11.0,mg/dL
+2014-07-13,Chloride,111.0,mmol/L
+2014-07-13,Cholesterol,192.0,mg/dL
+2014-07-13,Creatine Kinase,695.0,U/L
+2014-07-13,Creatinine,0.8,mg/dL
+2014-07-13,Eosinophils (Absolute),0.067,10^3/uL
+2014-07-13,Globulin,3.2,g/dL
+2014-07-13,Glucose,209.0,mg/dL
+2014-07-13,Hematocrit,58.0,%
+2014-07-13,Hemoglobin,16.9,g/dL
+2014-07-13,Lymphocytes (Absolute),3.484,10^3/uL
+2014-07-13,MCH,24.9,pg
+2014-07-13,MCHC,29.1,g/dL
+2014-07-13,MCV,85.0,fL
+2014-07-13,Monocytes (Absolute),0.268,10^3/uL
+2014-07-13,Na:K Ratio,58.0,nan
+2014-07-13,Neutrophils (Absolute),2.8810000000000002,10^3/uL
+2014-07-13,Phosphorus,2.4,mg/dL
+2014-07-13,Platelets,393.0,10^3/uL
+2014-07-13,Potassium,2.5,mmol/L
+2014-07-13,RBC,6.8,10^6/uL
+2014-07-13,Sodium,145.0,mmol/L
+2014-07-13,Total Bilirubin,0.1,mg/dL
+2014-07-13,Total Protein,8.2,g/dL
+2014-07-13,WBC,6.7,10^3/uL
+2015-03-25,ALP,52.0,nan
+2015-03-25,ALT,67.0,nan
+2015-03-25,AST,36.0,nan
+2015-03-25,Albumin,4.8,nan
+2015-03-25,BUN,13.0,nan
+2015-03-25,Basophils (Absolute),0.0,nan
+2015-03-25,Calcium,11.7,nan
+2015-03-25,Chloride,119.0,nan
+2015-03-25,Cholesterol,187.0,nan
+2015-03-25,Creatine Kinase,1576.0,nan
+2015-03-25,Creatinine,0.7,nan
+2015-03-25,Eosinophils (Absolute),2.0,nan
+2015-03-25,Fructosamine,355.0,nan
+2015-03-25,Globulin,3.2,nan
+2015-03-25,Glucose,151.0,nan
+2015-03-25,Hematocrit,49.0,nan
+2015-03-25,Hemoglobin,15.9,nan
+2015-03-25,Lymphocytes (Absolute),62.0,nan
+2015-03-25,MCH,25.2,nan
+2015-03-25,MCHC,32.4,nan
+2015-03-25,MCV,78.0,nan
+2015-03-25,Monocytes (Absolute),2.0,nan
+2015-03-25,Na:K Ratio,43.0,nan
+2015-03-25,Neutrophils (Absolute),34.0,nan
+2015-03-25,Phosphorus,2.2,nan
+2015-03-25,Platelets,465.0,nan
+2015-03-25,Potassium,3.4,nan
+2015-03-25,RBC,6.3,nan
+2015-03-25,Sodium,147.0,nan
+2015-03-25,Total Bilirubin,0.1,nan
+2015-03-25,Total Protein,8.0,nan
+2015-03-25,WBC,8.7,nan
+2016-04-12,% Basophils,0.0,%
+2016-04-12,% Eosinophils,3.0,%
+2016-04-12,% Lymphocytes,50.0,%
+2016-04-12,% Monocytes,3.0,%
+2016-04-12,% Neutrophils,44.0,%
+2016-04-12,ALP,62.0,U/L
+2016-04-12,ALT,105.0,U/L
+2016-04-12,AST,34.0,U/L
+2016-04-12,Albumin,5.1,g/dL
+2016-04-12,BUN,15.0,mg/dL
+2016-04-12,Calcium,12.3,mg/dL
+2016-04-12,Chloride,115.0,mmol/L
+2016-04-12,Cholesterol,194.0,mg/dL
+2016-04-12,Creatine Kinase,1000.0,U/L
+2016-04-12,Creatinine,0.7,mg/dL
+2016-04-12,Fructosamine,363.0,umol/L
+2016-04-12,Globulin,2.9,g/dL
+2016-04-12,Glucose,192.0,mg/dL
+2016-04-12,Hematocrit,55.0,%
+2016-04-12,Hemoglobin,17.0,g/dL
+2016-04-12,MCH,24.6,pg
+2016-04-12,MCHC,30.9,g/dL
+2016-04-12,MCV,80.0,fL
+2016-04-12,Na:K Ratio,43.0,nan
+2016-04-12,Phosphorus,2.7,mg/dL
+2016-04-12,Platelets,425.0,10^3/uL
+2016-04-12,Potassium,3.4,mmol/L
+2016-04-12,RBC,6.9,10^6/uL
+2016-04-12,Sodium,145.0,mmol/L
+2016-04-12,Total Bilirubin,0.1,mg/dL
+2016-04-12,Total Protein,8.0,g/dL
+2016-04-12,WBC,10.4,10^3/uL
+2017-03-06,% Basophils,3.1,%
+2017-03-06,% Eosinophils,2.2,%
+2017-03-06,% Lymphocytes,39.1,%
+2017-03-06,% Monocytes,5.5,%
+2017-03-06,% Neutrophils,50.1,%
+2017-03-06,ALP,65.0,U/L
+2017-03-06,ALT,123.0,U/L
+2017-03-06,AST,42.0,U/L
+2017-03-06,Albumin,5.1,g/dL
+2017-03-06,Amylase,106.0,U/L
+2017-03-06,Anion Gap,26.0,mmol/L
+2017-03-06,BUN,16.0,mg/dL
+2017-03-06,BUN:Creatinine Ratio,26.7,nan
+2017-03-06,Basophils (Absolute),0.000242,10^3/uL
+2017-03-06,Bilirubin (Unconjugated),0.0,mg/dL
+2017-03-06,Calcium,11.8,mg/dL
+2017-03-06,Chloride,117.0,mmol/L
+2017-03-06,Cholesterol,149.0,mg/dL
+2017-03-06,Creatine Kinase,275.0,U/L
+2017-03-06,Creatinine,0.6,mg/dL
+2017-03-06,Eosinophils (Absolute),0.00017199999999999998,10^3/uL
+2017-03-06,GGT,357.0,U/L
+2017-03-06,Globulin,2.1,g/dL
+2017-03-06,Glucose,124.0,mg/dL
+2017-03-06,Hematocrit,48.6,%
+2017-03-06,Hemoglobin,15.5,g/dL
+2017-03-06,Lipase,18.0,U/L
+2017-03-06,Lymphocytes (Absolute),0.0030499999999999998,10^3/uL
+2017-03-06,MCH,23.8,pg
+2017-03-06,MCHC,31.9,g/dL
+2017-03-06,MCV,75.0,fL
+2017-03-06,Monocytes (Absolute),0.000429,10^3/uL
+2017-03-06,Na:K Ratio,40.0,nan
+2017-03-06,Neutrophils (Absolute),0.003908,10^3/uL
+2017-03-06,Phosphorus,6.1,mg/dL
+2017-03-06,Platelets,0.506,10^3/uL
+2017-03-06,Potassium,3.7,mmol/L
+2017-03-06,RBC,6.5,10^6/uL
+2017-03-06,SDMA,0.008,mg/dL
+2017-03-06,Sodium,148.0,mmol/L
+2017-03-06,TCO2,9.0,mmol/L
+2017-03-06,Total Protein,7.2,g/dL
+2017-03-06,WBC,0.0078,10^3/uL
+2018-02-27,% Basophils,0.0,%
+2018-02-27,% Eosinophils,1.0,%
+2018-02-27,% Lymphocytes,14.0,%
+2018-02-27,% Monocytes,5.0,%
+2018-02-27,% Neutrophils,80.0,%
+2018-02-27,A:G Ratio,2.0,nan
+2018-02-27,ALP,101.0,U/L
+2018-02-27,ALT,34.0,U/L
+2018-02-27,AST,21.0,U/L
+2018-02-27,Albumin,4.7,g/dL
+2018-02-27,Amylase,119.0,U/L
+2018-02-27,BUN,16.0,mg/dL
+2018-02-27,BUN:Creatinine Ratio,32.0,nan
+2018-02-27,Basophils (Absolute),0.0,10^3/uL
+2018-02-27,Calcium,11.0,mg/dL
+2018-02-27,Chloride,120.0,mmol/L
+2018-02-27,Cholesterol,136.0,mg/dL
+2018-02-27,Creatine Kinase,195.0,U/L
+2018-02-27,Creatinine,0.5,mg/dL
+2018-02-27,Eosinophils (Absolute),0.061,10^3/uL
+2018-02-27,GGT,77.0,U/L
+2018-02-27,Globulin,2.4,g/dL
+2018-02-27,Glucose,56.0,mg/dL
+2018-02-27,Hematocrit,42.4,%
+2018-02-27,Hemoglobin,13.7,g/dL
+2018-02-27,Lymphocytes (Absolute),0.854,10^3/uL
+2018-02-27,MCH,24.9,pg
+2018-02-27,MCHC,32.3,g/dL
+2018-02-27,MCV,77.0,fL
+2018-02-27,Monocytes (Absolute),0.305,10^3/uL
+2018-02-27,Na:K Ratio,39.0,nan
+2018-02-27,Neutrophils (Absolute),4.88,10^3/uL
+2018-02-27,Phosphorus,2.4,mg/dL
+2018-02-27,Platelets,0.505,10^3/uL
+2018-02-27,Potassium,3.8,mmol/L
+2018-02-27,RBC,5.51,10^6/uL
+2018-02-27,SDMA,0.007,mg/dL
+2018-02-27,Sodium,148.0,mmol/L
+2018-02-27,TCO2,18.0,mmol/L
+2018-02-27,Total Bilirubin,0.1,mg/dL
+2018-02-27,Total Protein,7.1,g/dL
+2018-02-27,WBC,0.0060999999999999995,10^3/uL
+2019-03-13,% Basophils,1.1,%
+2019-03-13,% Eosinophils,0.2,%
+2019-03-13,% Lymphocytes,39.0,%
+2019-03-13,% Monocytes,4.2,%
+2019-03-13,% Neutrophils,55.5,%
+2019-03-13,A:G Ratio,1.7,nan
+2019-03-13,ALP,78.0,U/L
+2019-03-13,ALT,41.0,U/L
+2019-03-13,AST,26.0,U/L
+2019-03-13,Albumin,4.4,g/dL
+2019-03-13,Amylase,115.0,U/L
+2019-03-13,Anion Gap,17.0,mmol/L
+2019-03-13,BUN,16.0,mg/dL
+2019-03-13,BUN:Creatinine Ratio,32.0,nan
+2019-03-13,Basophils (Absolute),7.3e-05,10^3/uL
+2019-03-13,Bilirubin (Unconjugated),0.0,mg/dL
+2019-03-13,Calcium,10.1,mg/dL
+2019-03-13,Chloride,118.0,mmol/L
+2019-03-13,Cholesterol,168.0,mg/dL
+2019-03-13,Creatine Kinase,109.0,U/L
+2019-03-13,Creatinine,0.5,mg/dL
+2019-03-13,Eosinophils (Absolute),1.3e-05,10^3/uL
+2019-03-13,Globulin,2.6,g/dL
+2019-03-13,Glucose,89.0,mg/dL
+2019-03-13,Hematocrit,39.7,%
+2019-03-13,Hemoglobin,13.4,g/dL
+2019-03-13,Lipase,8.0,U/L
+2019-03-13,Lymphocytes (Absolute),0.002574,10^3/uL
+2019-03-13,MCH,24.5,pg
+2019-03-13,MCHC,33.8,g/dL
+2019-03-13,MCV,73.0,fL
+2019-03-13,Monocytes (Absolute),0.000277,10^3/uL
+2019-03-13,Na:K Ratio,40.0,nan
+2019-03-13,Neutrophils (Absolute),0.003663,10^3/uL
+2019-03-13,Phosphorus,3.1,mg/dL
+2019-03-13,Platelets,0.495,10^3/uL
+2019-03-13,Potassium,3.6,mmol/L
+2019-03-13,RBC,5.46,10^6/uL
+2019-03-13,SDMA,0.005,mg/dL
+2019-03-13,Sodium,144.0,mmol/L
+2019-03-13,TCO2,13.0,mmol/L
+2019-03-13,Total Protein,7.0,g/dL
+2019-03-13,WBC,0.0066,10^3/uL
+2020-11-18,% Basophils,1.3,%
+2020-11-18,% Eosinophils,0.1,%
+2020-11-18,% Lymphocytes,37.8,%
+2020-11-18,% Monocytes,3.9,%
+2020-11-18,% Neutrophils,56.9,%
+2020-11-18,A:G Ratio,1.7,nan
+2020-11-18,ALP,118.0,U/L
+2020-11-18,ALT,46.0,U/L
+2020-11-18,AST,31.0,U/L
+2020-11-18,Albumin,4.9,g/dL
+2020-11-18,Amylase,132.0,U/L
+2020-11-18,Anion Gap,22.0,mmol/L
+2020-11-18,BUN,26.0,mg/dL
+2020-11-18,BUN:Creatinine Ratio,43.3,nan
+2020-11-18,Basophils (Absolute),0.094,10^3/uL
+2020-11-18,Bilirubin (Conjugated),0.1,mg/dL
+2020-11-18,Bilirubin (Unconjugated),0.0,mg/dL
+2020-11-18,Calcium,10.0,mg/dL
+2020-11-18,Chloride,115.0,mmol/L
+2020-11-18,Cholesterol,193.0,mg/dL
+2020-11-18,Creatine Kinase,355.0,U/L
+2020-11-18,Creatinine,0.6,mg/dL
+2020-11-18,Eosinophils (Absolute),0.007,10^3/uL
+2020-11-18,GGT,59.0,U/L
+2020-11-18,Globulin,2.9,g/dL
+2020-11-18,Glucose,124.0,mg/dL
+2020-11-18,Hematocrit,44.0,%
+2020-11-18,Hemoglobin,14.8,g/dL
+2020-11-18,Lipase,18.0,U/L
+2020-11-18,Lymphocytes (Absolute),2.722,10^3/uL
+2020-11-18,MCH,24.5,pg
+2020-11-18,MCHC,33.6,g/dL
+2020-11-18,MCV,73.0,fL
+2020-11-18,Monocytes (Absolute),0.281,10^3/uL
+2020-11-18,Na:K Ratio,30.0,nan
+2020-11-18,Neutrophils (Absolute),4.097,10^3/uL
+2020-11-18,Phosphorus,3.6,mg/dL
+2020-11-18,Platelets,0.403,10^3/uL
+2020-11-18,Potassium,4.8,mmol/L
+2020-11-18,RBC,6.03,10^6/uL
+2020-11-18,SDMA,0.004,mg/dL
+2020-11-18,Sodium,146.0,mmol/L
+2020-11-18,TCO2,14.0,mmol/L
+2020-11-18,Total Protein,7.8,g/dL
+2020-11-18,WBC,0.007200000000000001,10^3/uL
+2022-01-20,% Basophils,2.0,%
+2022-01-20,% Eosinophils,4.0,%
+2022-01-20,% Lymphocytes,22.0,%
+2022-01-20,% Monocytes,5.0,%
+2022-01-20,% Neutrophils,65.0,%
+2022-01-20,A:G Ratio,1.7,nan
+2022-01-20,ALP,140.0,U/L
+2022-01-20,ALT,33.0,U/L
+2022-01-20,AST,22.0,U/L
+2022-01-20,Albumin,4.7,g/dL
+2022-01-20,Amylase,160.0,U/L
+2022-01-20,Anion Gap,26.0,mmol/L
+2022-01-20,BUN,28.0,mg/dL
+2022-01-20,BUN:Creatinine Ratio,46.7,nan
+2022-01-20,Basophils (Absolute),0.00023,10^3/uL
+2022-01-20,Bilirubin (Unconjugated),0.0,mg/dL
+2022-01-20,Calcium,11.0,mg/dL
+2022-01-20,Chloride,115.0,mmol/L
+2022-01-20,Cholesterol,191.0,mg/dL
+2022-01-20,Creatine Kinase,205.0,U/L
+2022-01-20,Creatinine,0.6,mg/dL
+2022-01-20,Eosinophils (Absolute),0.00046,10^3/uL
+2022-01-20,GGT,56.0,U/L
+2022-01-20,Globulin,2.8,g/dL
+2022-01-20,Glucose,113.0,mg/dL
+2022-01-20,Hematocrit,42.5,%
+2022-01-20,Hemoglobin,14.5,g/dL
+2022-01-20,Lipase,27.0,U/L
+2022-01-20,Lymphocytes (Absolute),0.0025299999999999997,10^3/uL
+2022-01-20,MCH,25.5,pg
+2022-01-20,MCHC,34.1,g/dL
+2022-01-20,MCV,75.0,fL
+2022-01-20,Monocytes (Absolute),0.000575,10^3/uL
+2022-01-20,Na:K Ratio,48.0,nan
+2022-01-20,Neutrophils (Absolute),0.007475,10^3/uL
+2022-01-20,Phosphorus,3.5,mg/dL
+2022-01-20,Platelets,0.451,10^3/uL
+2022-01-20,Potassium,3.1,mmol/L
+2022-01-20,RBC,5.69,10^6/uL
+2022-01-20,SDMA,0.006,mg/dL
+2022-01-20,Sodium,149.0,mmol/L
+2022-01-20,TCO2,11.0,mmol/L
+2022-01-20,Total Protein,7.5,g/dL
+2022-01-20,WBC,0.0115,10^3/uL
+2023-01-26,% Basophils,0.0,%
+2023-01-26,% Eosinophils,2.0,%
+2023-01-26,% Lymphocytes,32.0,%
+2023-01-26,% Monocytes,1.0,%
+2023-01-26,% Neutrophils,65.0,%
+2023-01-26,Basophils (Absolute),0.0,10^3/uL
+2023-01-26,Eosinophils (Absolute),0.000178,10^3/uL
+2023-01-26,Hematocrit,44.8,%
+2023-01-26,Hemoglobin,15.7,g/dL
+2023-01-26,Lymphocytes (Absolute),0.002848,10^3/uL
+2023-01-26,MCH,25.0,pg
+2023-01-26,MCHC,35.0,g/dL
+2023-01-26,MCV,71.0,fL
+2023-01-26,Monocytes (Absolute),8.9e-05,10^3/uL
+2023-01-26,Neutrophils (Absolute),0.005785,10^3/uL
+2023-01-26,Platelets,0.431,10^3/uL
+2023-01-26,RBC,6.28,10^6/uL
+2023-01-26,WBC,0.0089,10^3/uL
+2024-03-29,% Basophils,1.0,%
+2024-03-29,% Eosinophils,4.0,%
+2024-03-29,% Lymphocytes,30.0,%
+2024-03-29,% Monocytes,5.0,%
+2024-03-29,% Neutrophils,60.0,%
+2024-03-29,A:G Ratio,1.7,nan
+2024-03-29,ALP,101.0,U/L
+2024-03-29,ALT,52.0,U/L
+2024-03-29,AST,42.0,U/L
+2024-03-29,Albumin,4.7,g/dL
+2024-03-29,Amylase,127.0,U/L
+2024-03-29,Anion Gap,21.0,mmol/L
+2024-03-29,BUN,19.0,mg/dL
+2024-03-29,BUN:Creatinine Ratio,38.0,nan
+2024-03-29,Basophils (Absolute),0.000102,10^3/uL
+2024-03-29,Bilirubin (Conjugated),0.1,mg/dL
+2024-03-29,Bilirubin (Unconjugated),0.0,mg/dL
+2024-03-29,Calcium,10.8,mg/dL
+2024-03-29,Chloride,115.0,mmol/L
+2024-03-29,Cholesterol,211.0,mg/dL
+2024-03-29,Creatine Kinase,2604.0,U/L
+2024-03-29,Creatinine,0.5,mg/dL
+2024-03-29,Eosinophils (Absolute),0.000408,10^3/uL
+2024-03-29,GGT,65.0,U/L
+2024-03-29,Globulin,2.7,g/dL
+2024-03-29,Glucose,97.0,mg/dL
+2024-03-29,Hematocrit,44.2,%
+2024-03-29,Hemoglobin,15.7,g/dL
+2024-03-29,Lipase,17.0,U/L
+2024-03-29,Lymphocytes (Absolute),0.0030600000000000002,10^3/uL
+2024-03-29,MCH,25.1,pg
+2024-03-29,MCHC,35.5,g/dL
+2024-03-29,MCV,71.0,fL
+2024-03-29,Monocytes (Absolute),0.00051,10^3/uL
+2024-03-29,Na:K Ratio,35.0,nan
+2024-03-29,Neutrophils (Absolute),0.0061200000000000004,10^3/uL
+2024-03-29,Phosphorus,3.3,mg/dL
+2024-03-29,Platelets,0.441,10^3/uL
+2024-03-29,Potassium,4.3,mmol/L
+2024-03-29,RBC,6.26,10^6/uL
+2024-03-29,SDMA,0.005,mg/dL
+2024-03-29,Sodium,149.0,mmol/L
+2024-03-29,TCO2,17.0,mmol/L
+2024-03-29,Total Protein,7.4,g/dL
+2024-03-29,WBC,0.010199999999999999,10^3/uL

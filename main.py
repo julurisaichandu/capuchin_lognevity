@@ -1,1065 +1,710 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-# import pyplot
-import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
-import io
-import base64
 from datetime import datetime, timedelta
+import os
 
-# Set page config
+# ==============================================================================
+# Page Configuration
+# ==============================================================================
 st.set_page_config(
-    page_title="Capuchin Health Dashboard",
+    page_title="Capuchin Health Monitor",
     page_icon="🐒",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Define reference ranges for capuchin health parameters
-# Based on literature values for adult capuchin monkeys
+# ==============================================================================
+# Simplified Reference Ranges and Health Categories
+# ==============================================================================
 REFERENCE_RANGES = {
-    'RBC': {'min': 4.5, 'max': 7.0, 'units': 'M/µL'},
-    'Hematocrit': {'min': 35.0, 'max': 50.0, 'units': '%'}, 
-    'Hemoglobin': {'min': 12.0, 'max': 17.0, 'units': 'g/dL'},
-    'MCV': {'min': 65.0, 'max': 85.0, 'units': 'fL'},
-    'MCH': {'min': 20.0, 'max': 28.0, 'units': 'pg'},
-    'MCHC': {'min': 30.0, 'max': 36.0, 'units': 'g/dL'},
-    'WBC': {'min': 3.5, 'max': 15.0, 'units': 'K/µL'},
-    'Neutrophils': {'min': 1.5, 'max': 8.0, 'units': 'K/µL'},
-    'Lymphocytes': {'min': 0.8, 'max': 4.0, 'units': 'K/µL'},
-    'Monocytes': {'min': 0.1, 'max': 0.8, 'units': 'K/µL'},
-    'Eosinophils': {'min': 0.0, 'max': 0.6, 'units': 'K/µL'},
-    'Basophils': {'min': 0.0, 'max': 0.2, 'units': 'K/µL'},
-    'Platelets': {'min': 200.0, 'max': 600.0, 'units': 'K/µL'},
-    'Glucose': {'min': 60.0, 'max': 140.0, 'units': 'mg/dL'},
-    'BUN': {'min': 8.0, 'max': 30.0, 'units': 'mg/dL'},
-    'Creatinine': {'min': 0.4, 'max': 1.0, 'units': 'mg/dL'},
-    'Phosphorus': {'min': 2.5, 'max': 6.0, 'units': 'mg/dL'},
-    'Calcium': {'min': 8.0, 'max': 11.0, 'units': 'mg/dL'},
-    'Sodium': {'min': 140.0, 'max': 155.0, 'units': 'mmol/L'},
-    'Potassium': {'min': 3.0, 'max': 5.0, 'units': 'mmol/L'},
-    'Chloride': {'min': 100.0, 'max': 120.0, 'units': 'mmol/L'},
-    'Total Protein': {'min': 5.5, 'max': 8.0, 'units': 'g/dL'},
-    'Albumin': {'min': 3.0, 'max': 5.0, 'units': 'g/dL'},
-    'Globulin': {'min': 1.5, 'max': 3.5, 'units': 'g/dL'},
-    'ALT': {'min': 10.0, 'max': 50.0, 'units': 'U/L'},
-    'AST': {'min': 10.0, 'max': 50.0, 'units': 'U/L'},
-    'ALP': {'min': 30.0, 'max': 120.0, 'units': 'U/L'},
-    'GGT': {'min': 10.0, 'max': 70.0, 'units': 'U/L'},
-    'Bilirubin Total': {'min': 0.0, 'max': 0.3, 'units': 'mg/dL'},
-    'Cholesterol': {'min': 100.0, 'max': 250.0, 'units': 'mg/dL'}
+    'RBC': {'min': 4.5, 'max': 7.0, 'units': '10^6/uL', 'category': 'Blood Health'},
+    'Hematocrit': {'min': 35.0, 'max': 50.0, 'units': '%', 'category': 'Blood Health'},
+    'Hemoglobin': {'min': 12.0, 'max': 17.0, 'units': 'g/dL', 'category': 'Blood Health'},
+    'WBC': {'min': 3.5, 'max': 15.0, 'units': '10^3/uL', 'category': 'Immune System'},
+    'Neutrophils (Absolute)': {'min': 1.5, 'max': 8.0, 'units': '10^3/uL', 'category': 'Immune System'},
+    'Lymphocytes (Absolute)': {'min': 0.8, 'max': 4.0, 'units': '10^3/uL', 'category': 'Immune System'},
+    'Platelets': {'min': 200.0, 'max': 600.0, 'units': '10^3/uL', 'category': 'Blood Health'},
+    'Glucose': {'min': 60.0, 'max': 140.0, 'units': 'mg/dL', 'category': 'Metabolism'},
+    'BUN': {'min': 8.0, 'max': 30.0, 'units': 'mg/dL', 'category': 'Kidney Function'},
+    'Creatinine': {'min': 0.4, 'max': 1.0, 'units': 'mg/dL', 'category': 'Kidney Function'},
+    'Calcium': {'min': 8.0, 'max': 11.0, 'units': 'mg/dL', 'category': 'Bone & Minerals'},
+    'Phosphorus': {'min': 2.5, 'max': 6.0, 'units': 'mg/dL', 'category': 'Bone & Minerals'},
+    'Total Protein': {'min': 5.5, 'max': 8.0, 'units': 'g/dL', 'category': 'Nutrition'},
+    'Albumin': {'min': 3.0, 'max': 5.0, 'units': 'g/dL', 'category': 'Nutrition'},
+    'ALT': {'min': 10.0, 'max': 50.0, 'units': 'U/L', 'category': 'Liver Health'},
+    'AST': {'min': 10.0, 'max': 50.0, 'units': 'U/L', 'category': 'Liver Health'},
+    'Cholesterol': {'min': 100.0, 'max': 250.0, 'units': 'mg/dL', 'category': 'Heart Health'},
+    'MCV': {'min': 65.0, 'max': 85.0, 'units': 'fL', 'category': 'Blood Health'},
+    'MCH': {'min': 20.0, 'max': 28.0, 'units': 'pg', 'category': 'Blood Health'},
+    'MCHC': {'min': 30.0, 'max': 36.0, 'units': 'g/dL', 'category': 'Blood Health'},
+    'Monocytes (Absolute)': {'min': 0.1, 'max': 0.8, 'units': '10^3/uL', 'category': 'Immune System'},
+    'Eosinophils (Absolute)': {'min': 0.0, 'max': 0.6, 'units': '10^3/uL', 'category': 'Immune System'},
+    'Basophils (Absolute)': {'min': 0.0, 'max': 0.2, 'units': '10^3/uL', 'category': 'Immune System'},
+    'Sodium': {'min': 140.0, 'max': 155.0, 'units': 'mmol/L', 'category': 'Bone & Minerals'},
+    'Potassium': {'min': 3.0, 'max': 5.0, 'units': 'mmol/L', 'category': 'Bone & Minerals'},
+    'Chloride': {'min': 100.0, 'max': 120.0, 'units': 'mmol/L', 'category': 'Bone & Minerals'},
+    'Globulin': {'min': 1.5, 'max': 3.5, 'units': 'g/dL', 'category': 'Nutrition'},
+    'ALP': {'min': 30.0, 'max': 120.0, 'units': 'U/L', 'category': 'Liver Health'},
+    'GGT': {'min': 10.0, 'max': 70.0, 'units': 'U/L', 'category': 'Liver Health'},
+    'Total Bilirubin': {'min': 0.0, 'max': 0.3, 'units': 'mg/dL', 'category': 'Liver Health'}
 }
 
-# Age-specific adjustments (percentage adjustments to apply to reference ranges)
-AGE_ADJUSTMENTS = {
-    'juvenile': {  # 0-5 years
-        'RBC': {'min': 0.90, 'max': 1.10},
-        'Hematocrit': {'min': 0.90, 'max': 1.05},
-        'Hemoglobin': {'min': 0.90, 'max': 1.05},
-        'ALP': {'min': 1.20, 'max': 1.50},  # Higher in juveniles
-        'Glucose': {'min': 0.95, 'max': 1.10},
-        'Phosphorus': {'min': 1.10, 'max': 1.20},  # Higher in juveniles
-    },
-    'geriatric': {  # 25+ years
-        'RBC': {'min': 0.90, 'max': 0.95},  # Lower in geriatric
-        'Hematocrit': {'min': 0.90, 'max': 0.95},  # Lower in geriatric
-        'Hemoglobin': {'min': 0.90, 'max': 0.95},  # Lower in geriatric
-        'Creatinine': {'min': 1.05, 'max': 1.10},  # Higher in geriatric
-        'BUN': {'min': 1.05, 'max': 1.15},  # Higher in geriatric
-    }
+# Simplified category names for display
+CATEGORY_DISPLAY = {
+    'Blood Health': '🩸 Blood Health',
+    'Immune System': '🛡️ Immune System',
+    'Metabolism': '⚡ Energy & Sugar',
+    'Kidney Function': '🫘 Kidney Health',
+    'Bone & Minerals': '🦴 Bones & Minerals',
+    'Nutrition': '🥗 Nutrition',
+    'Liver Health': '🫀 Liver Health',
+    'Heart Health': '❤️ Heart Health'
 }
 
-# Function to get age category
-def get_age_category(age):
-    if age is None or pd.isna(age):
-        return 'adult'  # Default to adult if age is unknown
+# ==============================================================================
+# Helper Functions for Simplified Analysis
+# ==============================================================================
 
-    try:
-        age = float(age)
-    except (ValueError, TypeError):
-        return 'adult'  # If age can't be converted, assume adult
-
-    if age < 5:
-        return 'juvenile'
-    elif age > 25:
-        return 'geriatric'
+def get_health_status(value, parameter):
+    """Returns a simple status with emoji"""
+    ref = REFERENCE_RANGES.get(parameter)
+    if not ref or pd.isna(value):
+        return "❓ Unknown"
+    
+    if ref['min'] <= value <= ref['max']:
+        return "🟢 Good"
+    elif value < ref['min'] * 0.8 or value > ref['max'] * 1.2:
+        return "🔴 Needs Attention"
     else:
-        return 'adult'
+        return "🟡 Watch Closely"
 
+def get_letter_grade(health_score):
+    """Converts health score to letter grade"""
+    if health_score >= 90: 
+        return "A", "Excellent"
+    elif health_score >= 80: 
+        return "B", "Good"
+    elif health_score >= 70: 
+        return "C", "Fair"
+    elif health_score >= 60: 
+        return "D", "Poor"
+    else: 
+        return "F", "Needs Immediate Attention"
 
-# Function to get adjusted reference range based on age
-def get_reference_range(parameter, age=None):
-    if parameter not in REFERENCE_RANGES:
-        return None
-    
-    base_range = REFERENCE_RANGES[parameter].copy()
-    
-    # Apply age-specific adjustments if applicable
-    age_category = get_age_category(age)
-    if age_category != 'adult' and parameter in AGE_ADJUSTMENTS.get(age_category, {}):
-        adjustments = AGE_ADJUSTMENTS[age_category][parameter]
-        base_range['min'] *= adjustments['min']
-        base_range['max'] *= adjustments['max']
-    
-    return base_range
+def get_health_weather(health_score):
+    """Returns weather emoji based on health"""
+    if health_score >= 85: 
+        return "☀️", "Sunny - Great Health!"
+    elif health_score >= 70: 
+        return "⛅", "Partly Cloudy - Some Concerns"
+    else: 
+        return "🌧️", "Stormy - Needs Care"
 
-# Function to check if a value is outside reference range
-def is_outside_range(value, parameter, age=None):
-    range_info = get_reference_range(parameter, age)
-    if range_info is None or pd.isna(value):
-        return False
-    
-    # Handle string values like '<0.1'
-    if isinstance(value, str):
-        if value.startswith('<'):
-            value = float(value[1:]) - 0.01  # Just below the threshold
-        elif value.startswith('>'):
-            value = float(value[1:]) + 0.01  # Just above the threshold
-        else:
-            try:
-                value = float(value)
-            except:
-                return False
-    
-    return value < range_info['min'] or value > range_info['max']
-
-# Function to get the direction of deviation (High/Low)
-def get_deviation(value, parameter, age=None):
-    range_info = get_reference_range(parameter, age)
-    if range_info is None or pd.isna(value):
-        return ''
-    
-    # Handle string values
-    if isinstance(value, str):
-        if value.startswith('<'):
-            value = float(value[1:]) - 0.01
-        elif value.startswith('>'):
-            value = float(value[1:]) + 0.01
-        else:
-            try:
-                value = float(value)
-            except:
-                return ''
-    
-    if value < range_info['min']:
-        return 'Low'
-    elif value > range_info['max']:
-        return 'High'
-    else:
-        return 'Normal'
-
-# Data loading and processing functions
-def clean_value(value):
-    """Convert value to float if possible"""
-    if pd.isna(value):
-        return np.nan
-    
-    if isinstance(value, (int, float)):
-        return float(value)
-    
-    # Handle string values like '<0.1'
-    if isinstance(value, str):
-        if value.startswith('<'):
-            # Return a value just below the threshold
-            try:
-                return float(value[1:]) - 0.01
-            except:
-                return np.nan
-        elif value.startswith('>'):
-            # Return a value just above the threshold
-            try:
-                return float(value[1:]) + 0.01
-            except:
-                return np.nan
-        else:
-            # Try to convert to float
-            try:
-                return float(value)
-            except:
-                return np.nan
-    
-    return np.nan
-
-def preprocess_data(df):
-    """Clean and preprocess the uploaded data"""
-    # Ensure date column is in datetime format
-    if 'date' in df.columns:
-        df['date'] = pd.to_datetime(df['date'], errors='coerce')
-    
-    # Clean up result values
-    if 'result' in df.columns:
-        df['result_numeric'] = df['result'].apply(clean_value)
-    
-    return df
-
-def pivot_data_for_clustering(df):
-    """Pivot data into a format suitable for clustering"""
-    # Create a pivot table with animal IDs as rows and tests as columns
-    pivot_df = df.pivot_table(
-        index=['id', 'date'],
-        columns='test',
-        values='result_numeric',
-        aggfunc='first'
-    ).reset_index()
-    
-    # Get the most recent test for each animal
-    most_recent = pivot_df.sort_values('date').groupby('id').last().reset_index()
-    
-    return most_recent
-
-def perform_clustering(df, n_clusters=3):
-    """Perform hierarchical clustering on the data"""
-    # Get only the numeric columns
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    numeric_cols = [col for col in numeric_cols if col not in ['id', 'age_years']]
-    
-    # Handle missing values
-    analysis_df = df[numeric_cols].fillna(df[numeric_cols].mean())
-    
-    # Standardize the data
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(analysis_df)
-    
-    # Perform hierarchical clustering
-    Z = linkage(X_scaled, method='ward')
-    clusters = fcluster(Z, n_clusters, criterion='maxclust')
-    
-    # Add cluster information to the original dataframe
-    result_df = df.copy()
-    result_df['cluster'] = clusters
-    
-    return result_df, Z
-
-def perform_pca(df):
-    """Perform PCA on the data"""
-    # Get only the numeric columns
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    numeric_cols = [col for col in numeric_cols if col not in ['id', 'age_years', 'cluster']]
-    
-    # Handle missing values
-    analysis_df = df[numeric_cols].fillna(df[numeric_cols].mean())
-    
-    # Standardize the data
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(analysis_df)
-    
-    # Apply PCA
-    pca = PCA(n_components=2)
-    pca_result = pca.fit_transform(X_scaled)
-    
-    # Create a dataframe with PCA results
-    pca_df = pd.DataFrame(
-        data=pca_result,
-        columns=['PC1', 'PC2']
-    )
-    
-    # Add the animal ID and cluster information
-    pca_df['id'] = df['id'].values
-    if 'cluster' in df.columns:
-        pca_df['cluster'] = df['cluster'].values
-    
-    # Feature importance for each principal component
-    loadings = pd.DataFrame(
-        pca.components_.T,
-        columns=['PC1', 'PC2'],
-        index=numeric_cols
-    )
-    
-    return pca_df, loadings, pca.explained_variance_ratio_
-
-# UI Functions
-def create_download_link(df, filename):
-    """Creates a download link for a dataframe"""
-    csv = df.to_csv(index=False)
-    b64 = base64.b64encode(csv.encode()).decode()
-    href = f'<a href="data:file/csv;base64,{b64}" download="{filename}">Download {filename}</a>'
-    return href
-
-def plot_time_series(df, animal_id, parameter, age=None):
-    """Create a time series plot for a parameter with reference ranges"""
-    # Filter data for the specific animal and parameter
-    animal_data = df[(df['id'] == animal_id) & (df['test'] == parameter)]
-    
-    if len(animal_data) == 0:
-        st.warning(f"No data available for {parameter} for this animal.")
-        return None
-    
-    # Sort by date
-    animal_data = animal_data.sort_values('date')
-    
-    # Get the reference range
-    ref_range = get_reference_range(parameter, age)
-    
-    # Create the figure
-    fig = go.Figure()
-    
-    # Add the time series
-    fig.add_trace(go.Scatter(
-        x=animal_data['date'],
-        y=animal_data['result_numeric'],
-        mode='lines+markers',
-        name=parameter,
-        line=dict(color='royalblue', width=2)
-    ))
-    
-    # Add reference range if available
-    if ref_range:
-        # Add reference range as a shaded area
-        fig.add_shape(
-            type="rect",
-            x0=animal_data['date'].min(),
-            x1=animal_data['date'].max(),
-            y0=ref_range['min'],
-            y1=ref_range['max'],
-            fillcolor="rgba(0,255,0,0.1)",
-            line=dict(width=0),
-            layer="below"
-        )
-        
-        # Add reference lines
-        fig.add_shape(
-            type="line",
-            x0=animal_data['date'].min(),
-            x1=animal_data['date'].max(),
-            y0=ref_range['min'],
-            y1=ref_range['min'],
-            line=dict(color="rgba(255,0,0,0.5)", width=1, dash="dash")
-        )
-        fig.add_shape(
-            type="line",
-            x0=animal_data['date'].min(),
-            x1=animal_data['date'].max(),
-            y0=ref_range['max'],
-            y1=ref_range['max'],
-            line=dict(color="rgba(255,0,0,0.5)", width=1, dash="dash")
-        )
-    
-    # Update layout
-    fig.update_layout(
-        title=f"{parameter} Over Time for {animal_id}",
-        xaxis_title="Date",
-        yaxis_title=f"{parameter} ({ref_range['units']})" if ref_range else parameter,
-        template="plotly_white"
-    )
-    
-    return fig
-
-def plot_parameter_distribution(df, parameter):
-    """Create a distribution plot for a parameter across all animals"""
-    # Filter data for the specific parameter
-    param_data = df[df['test'] == parameter]
-    
-    if len(param_data) == 0:
-        st.warning(f"No data available for {parameter}.")
-        return None
-    
-    # Get the reference range
-    ref_range = get_reference_range(parameter)
-    
-    # Create the figure
-    fig = px.histogram(
-        param_data, 
-        x='result_numeric', 
-        color='id', 
-        barmode='overlay',
-        opacity=0.7,
-        marginal="box"
-    )
-    
-    # Add reference range if available
-    if ref_range:
-        # Add reference range as vertical lines
-        fig.add_shape(
-            type="line",
-            x0=ref_range['min'],
-            x1=ref_range['min'],
-            y0=0,
-            y1=1,
-            yref="paper",
-            line=dict(color="red", width=1, dash="dash")
-        )
-        fig.add_shape(
-            type="line",
-            x0=ref_range['max'],
-            x1=ref_range['max'],
-            y0=0,
-            y1=1,
-            yref="paper",
-            line=dict(color="red", width=1, dash="dash")
-        )
-        
-        # Add reference range annotation
-        fig.add_annotation(
-            x=(ref_range['min'] + ref_range['max']) / 2,
-            y=1,
-            text=f"Reference Range: {ref_range['min']} - {ref_range['max']} {ref_range['units']}",
-            showarrow=False,
-            yref="paper"
-        )
-    
-    # Update layout
-    fig.update_layout(
-        title=f"{parameter} Distribution Across All Animals",
-        xaxis_title=f"{parameter} ({ref_range['units']})" if ref_range else parameter,
-        yaxis_title="Count",
-        template="plotly_white"
-    )
-    
-    return fig
-
-def plot_clustered_data(pca_df, loadings, explained_variance):
-    """Plot the results of the clustering analysis using PCA"""
-    # Create figure with two subplots - PCA scatter plot and loadings plot
-    fig = make_subplots(rows=1, cols=2, subplot_titles=("PCA Scatter Plot", "Feature Importance"))
-    
-    # Add PCA scatter plot
-    if 'cluster' in pca_df.columns:
-        # Add scatter plot colored by cluster
-        scatter = px.scatter(
-            pca_df, 
-            x='PC1', 
-            y='PC2', 
-            color='cluster',
-            text='id',
-            hover_data=['id', 'cluster']
-        )
-        
-        for trace in scatter.data:
-            fig.add_trace(trace, row=1, col=1)
-    else:
-        # Add scatter plot without cluster information
-        scatter = px.scatter(
-            pca_df, 
-            x='PC1', 
-            y='PC2', 
-            text='id',
-            hover_data=['id']
-        )
-        
-        for trace in scatter.data:
-            fig.add_trace(trace, row=1, col=1)
-    
-    # Add loadings plot (top 10 features by absolute value for PC1)
-    top_loadings = loadings['PC1'].abs().sort_values(ascending=False).head(10).index
-    loadings_sorted = loadings.loc[top_loadings, 'PC1'].sort_values()
-    
-    fig.add_trace(
-        go.Bar(
-            y=loadings_sorted.index,
-            x=loadings_sorted.values,
-            orientation='h',
-            name='PC1'
-        ),
-        row=1, col=2
-    )
-    
-    # Update layout
-    fig.update_layout(
-        title="PCA Analysis Results",
-        template="plotly_white",
-        height=600,
-        annotations=[
-            dict(
-                x=0.25, y=1.05,
-                text=f"PC1 ({explained_variance[0]:.2%} variance explained)",
-                showarrow=False,
-                xref="paper", yref="paper"
-            ),
-            dict(
-                x=0.25, y=1.0,
-                text=f"PC2 ({explained_variance[1]:.2%} variance explained)",
-                showarrow=False,
-                xref="paper", yref="paper"
-            )
-        ]
-    )
-    
-    return fig
-
-def plot_health_radar(df, animal_id):
-    """Create a radar chart for the most recent health parameters of an animal"""
-    # Get the most recent data for the animal
+def calculate_simple_health_score(df, animal_id):
+    """Calculates a simplified health score"""
     animal_data = df[df['id'] == animal_id]
-    
-    if len(animal_data) == 0:
-        st.warning(f"No data available for {animal_id}.")
-        return None
-    
-    # Get the most recent date
+    if animal_data.empty:
+        return 0
+        
     most_recent_date = animal_data['date'].max()
     recent_data = animal_data[animal_data['date'] == most_recent_date]
     
-    # Convert to a format suitable for radar chart
-    radar_data = []
-    labels = []
-    reference_mins = []
-    reference_maxes = []
+    good_count = 0
+    total_count = 0
     
     for _, row in recent_data.iterrows():
-        parameter = row['test']
-        if parameter in REFERENCE_RANGES:
-            ref_range = get_reference_range(parameter, animal_data['age_years'].iloc[0])
-            labels.append(parameter)
-            
-            # Normalize the value between 0 and 1 for the radar chart
-            value = row['result_numeric']
-            min_val = ref_range['min']
-            max_val = ref_range['max']
-            range_size = max_val - min_val
-            
-            # Calculate normalized value (0.5 is middle of reference range)
-            if pd.isna(value):
-                normalized = 0.5  # Default to middle if unknown
-            else:
-                normalized = (value - min_val) / range_size if range_size > 0 else 0.5
-            
-            radar_data.append(normalized)
-            reference_mins.append(0)  # Normalized reference min is always 0
-            reference_maxes.append(1)  # Normalized reference max is always 1
+        if row['test'] in REFERENCE_RANGES:
+            total_count += 1
+            status = get_health_status(row['result'], row['test'])
+            if "🟢" in status:
+                good_count += 1
+            elif "🟡" in status:
+                good_count += 0.5
     
-    # Create the radar chart
+    if total_count == 0:
+        return 0
+        
+    return (good_count / total_count) * 100
+
+def get_trend(df, animal_id, parameter, days=30):
+    """Gets simple trend direction"""
+    animal_data = df[(df['id'] == animal_id) & (df['test'] == parameter)]
+    if len(animal_data) < 2:
+        return "→", "Stable"
+    
+    recent_data = animal_data.sort_values('date').tail(5)
+    if len(recent_data) < 2:
+        return "→", "Stable"
+    
+    first_val = recent_data.iloc[0]['result']
+    last_val = recent_data.iloc[-1]['result']
+    
+    change_pct = ((last_val - first_val) / first_val) * 100
+    
+    if change_pct > 10:
+        return "↑", "Increasing"
+    elif change_pct < -10:
+        return "↓", "Decreasing"
+    else:
+        return "→", "Stable"
+
+def get_category_health(df, animal_id, category):
+    """Gets health status for a category"""
+    animal_data = df[df['id'] == animal_id]
+    if animal_data.empty:
+        return 0
+        
+    most_recent_date = animal_data['date'].max()
+    recent_data = animal_data[animal_data['date'] == most_recent_date]
+    
+    # Filter by category
+    category_tests = [test for test, info in REFERENCE_RANGES.items() 
+                     if info.get('category') == category]
+    category_data = recent_data[recent_data['test'].isin(category_tests)]
+    
+    if category_data.empty:
+        return 0
+    
+    good_count = 0
+    total_count = 0
+    
+    for _, row in category_data.iterrows():
+        total_count += 1
+        status = get_health_status(row['result'], row['test'])
+        if "🟢" in status:
+            good_count += 1
+        elif "🟡" in status:
+            good_count += 0.5
+    
+    return (good_count / total_count) * 100 if total_count > 0 else 0
+
+# ==============================================================================
+# Data Loading
+# ==============================================================================
+@st.cache_data
+def load_and_process_data(uploaded_files):
+    """Loads and processes CSV files"""
+    if not uploaded_files:
+        return None
+        
+    all_dfs = []
+    for uploaded_file in uploaded_files:
+        try:
+            animal_id = os.path.basename(uploaded_file.name).split(' ')[0].capitalize()
+            df = pd.read_csv(uploaded_file)
+            df.columns = df.columns.str.strip()
+            df['id'] = animal_id
+            df['date'] = pd.to_datetime(df['date'], errors='coerce')
+            df['result'] = pd.to_numeric(df['result'], errors='coerce')
+            df.dropna(subset=['date', 'test', 'result'], inplace=True)
+            
+            # Handle unit conversions for tests that come in different scales
+            # If units contain "10^3/uL" and value is < 1, multiply by 1000
+            mask = (df['units'] == '10^3/uL') & (df['result'] < 10)
+            df.loc[mask, 'result'] = df.loc[mask, 'result'] * 1000
+            
+            # Handle RBC if needed (10^6/uL)
+            mask = (df['units'] == '10^6/uL') & (df['test'] == 'RBC') & (df['result'] < 1)
+            df.loc[mask, 'result'] = df.loc[mask, 'result'] * 1000000
+            
+            all_dfs.append(df)
+        except Exception as e:
+            st.sidebar.error(f"Error with {uploaded_file.name}: {str(e)}")
+            
+    if not all_dfs:
+        return None
+        
+    combined_df = pd.concat(all_dfs, ignore_index=True)
+    return combined_df.sort_values(['date', 'test'])
+
+# ==============================================================================
+# Visualization Functions
+# ==============================================================================
+
+def create_health_report_card(df, animal_id):
+    """Creates a visual health report card"""
+    health_score = calculate_simple_health_score(df, animal_id)
+    grade, grade_desc = get_letter_grade(health_score)
+    weather, weather_desc = get_health_weather(health_score)
+    
+    # Create the report card
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric(
+            "Overall Health Grade", 
+            f"{grade}",
+            f"{grade_desc}",
+            help="A simple grade based on how many tests are in the healthy range"
+        )
+    
+    with col2:
+        st.metric(
+            "Health Weather",
+            weather,
+            weather_desc,
+            help="A fun way to visualize overall health status"
+        )
+    
+    with col3:
+        st.metric(
+            "Health Score",
+            f"{health_score:.0f}/100",
+            help="Percentage of tests in the healthy range"
+        )
+    
+    # Category breakdown
+    st.subheader("Health by Body System")
+    
+    categories = []
+    scores = []
+    colors = []
+    
+    for category, display_name in CATEGORY_DISPLAY.items():
+        score = get_category_health(df, animal_id, category)
+        categories.append(display_name)
+        scores.append(score)
+        
+        if score >= 80:
+            colors.append('#4CAF50')  # Green
+        elif score >= 60:
+            colors.append('#FFC107')  # Yellow
+        else:
+            colors.append('#F44336')  # Red
+    
+    fig = go.Figure(data=[
+        go.Bar(
+            x=categories,
+            y=scores,
+            marker_color=colors,
+            text=[f"{s:.0f}%" for s in scores],
+            textposition='outside'
+        )
+    ])
+    
+    fig.update_layout(
+        title="How healthy is each body system?",
+        yaxis_title="Health Score (%)",
+        yaxis_range=[0, 110],
+        showlegend=False,
+        height=400
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+
+def create_simple_timeline(df, animal_id, parameter):
+    """Creates a simple timeline with health zones"""
+    animal_data = df[(df['id'] == animal_id) & (df['test'] == parameter)].sort_values('date')
+    if animal_data.empty:
+        return None
+    
+    ref = REFERENCE_RANGES.get(parameter)
+    if not ref:
+        return None
+    
     fig = go.Figure()
     
-    # Add reference range
-    fig.add_trace(go.Scatterpolar(
-        r=reference_maxes,
-        theta=labels,
-        fill='toself',
-        fillcolor='rgba(0,255,0,0.1)',
-        line=dict(color='rgba(0,255,0,0.5)'),
-        name='Reference Range'
+    # Add healthy zone
+    fig.add_shape(
+        type="rect",
+        x0=animal_data['date'].min(),
+        x1=animal_data['date'].max(),
+        y0=ref['min'],
+        y1=ref['max'],
+        fillcolor="lightgreen",
+        opacity=0.3,
+        line_width=0,
+        layer="below"
+    )
+    
+    # Add the data line
+    fig.add_trace(go.Scatter(
+        x=animal_data['date'],
+        y=animal_data['result'],
+        mode='lines+markers',
+        name=parameter,
+        line=dict(color='darkblue', width=3),
+        marker=dict(size=8)
     ))
     
-    # Add animal data
-    fig.add_trace(go.Scatterpolar(
-        r=radar_data,
-        theta=labels,
-        fill='toself',
-        line=dict(color='royalblue'),
-        name=animal_id
-    ))
+    # Add annotations for healthy zone
+    fig.add_annotation(
+        x=animal_data['date'].mean(),
+        y=ref['max'],
+        text="Healthy Zone",
+        showarrow=False,
+        yshift=10,
+        font=dict(color="green", size=12)
+    )
     
-    # Update layout
     fig.update_layout(
-        title=f"Health Parameters for {animal_id} ({most_recent_date.date()})",
-        polar=dict(
-            radialaxis=dict(
-                visible=True,
-                range=[0, 1.2]
-            )
-        ),
-        showlegend=True
+        title=f"{parameter} Over Time",
+        xaxis_title="Date",
+        yaxis_title=f"{parameter} ({ref['units']})",
+        showlegend=False,
+        hovermode='x unified'
     )
     
     return fig
 
-def create_dashboard():
-    """Main function to create the dashboard"""
-    st.title("Capuchin Monkey Health Dashboard")
+def create_comparison_chart(df):
+    """Creates a simple comparison of all monkeys"""
+    monkeys = df['id'].unique()
+    scores = []
+    colors = []
     
-    # Sidebar for controls
-    st.sidebar.header("Dashboard Controls")
-    
-    # File uploader
-    st.sidebar.subheader("Upload Data")
-    uploaded_files = st.sidebar.file_uploader(
-        "Upload CSV files with monkey health data", 
-        type="csv", 
-        accept_multiple_files=True
-    )
-    
-    # Show a sample of expected CSV format
-    with st.sidebar.expander("Expected CSV Format"):
-        st.write("""
-        Your CSV should include these columns:
-        - `date`: Date of the test (YYYY-MM-DD)
-        - `test`: Test name (e.g., 'RBC', 'Glucose')
-        - `result`: Test result value
-        - `units`: Units for the result (e.g., 'g/dL')
-        - `age_years`: Age of the animal in years (optional)
-        - `sex`: Sex of the animal ('Male' or 'Female')
-        - `id`: Unique identifier for the animal
-        """)
-    
-    # Initialize session state if not done already
-    if 'data' not in st.session_state:
-        st.session_state.data = None
-    
-    # Load the data if files are uploaded
-    if uploaded_files:
-        # Read and concatenate all uploaded files
-        dfs = []
-        for file in uploaded_files:
-            try:
-                df = pd.read_csv(file)
-                dfs.append(df)
-                st.sidebar.success(f"Successfully loaded {file.name}")
-            except Exception as e:
-                st.sidebar.error(f"Error loading {file.name}: {e}")
+    for monkey in monkeys:
+        score = calculate_simple_health_score(df, monkey)
+        scores.append(score)
         
-        if dfs:
-            # Combine all dataframes
-            combined_df = pd.concat(dfs, ignore_index=True)
-            
-            # Preprocess the data
-            st.session_state.data = preprocess_data(combined_df)
-            
-            # Show data info
-            st.sidebar.info(f"Loaded data for {st.session_state.data['id'].nunique()} animals with {len(st.session_state.data)} records.")
+        if score >= 80:
+            colors.append('#4CAF50')
+        elif score >= 60:
+            colors.append('#FFC107')
+        else:
+            colors.append('#F44336')
     
-    # Main content area with tabs for different views
-    tab1, tab2, tab3, tab4 = st.tabs([
-        "Individual Analysis", 
-        "Population Overview", 
-        "Comparative Analysis", 
-        "Pattern Detection"
+    # Sort by score
+    sorted_data = sorted(zip(monkeys, scores, colors), key=lambda x: x[1], reverse=True)
+    monkeys, scores, colors = zip(*sorted_data)
+    
+    fig = go.Figure(data=[
+        go.Bar(
+            x=list(monkeys),
+            y=list(scores),
+            marker_color=list(colors),
+            text=[f"{s:.0f}" for s in scores],
+            textposition='outside'
+        )
     ])
     
-    # If data is loaded, populate the dashboard
-    if st.session_state.data is not None:
-        data = st.session_state.data
+    fig.update_layout(
+        title="🏆 Health Leaderboard",
+        yaxis_title="Health Score",
+        yaxis_range=[0, 110],
+        showlegend=False,
+        height=400
+    )
+    
+    return fig
+
+def create_alert_dashboard(df):
+    """Creates an alert dashboard for monkeys needing attention"""
+    alerts = []
+    
+    for animal_id in df['id'].unique():
+        animal_data = df[df['id'] == animal_id]
+        most_recent_date = animal_data['date'].max()
+        recent_data = animal_data[animal_data['date'] == most_recent_date]
         
-        # Tab 1: Individual Animal Analysis
-        with tab1:
-            st.header("Individual Animal Analysis")
+        red_alerts = []
+        yellow_alerts = []
+        
+        for _, row in recent_data.iterrows():
+            status = get_health_status(row['result'], row['test'])
+            if "🔴" in status:
+                red_alerts.append(row['test'])
+            elif "🟡" in status:
+                yellow_alerts.append(row['test'])
+        
+        if red_alerts or yellow_alerts:
+            alerts.append({
+                'Monkey': animal_id,
+                'Urgent Issues': len(red_alerts),
+                'Watch Items': len(yellow_alerts),
+                'Details': ', '.join(red_alerts[:3]) + ('...' if len(red_alerts) > 3 else '')
+            })
+    
+    if alerts:
+        alert_df = pd.DataFrame(alerts)
+        alert_df = alert_df.sort_values('Urgent Issues', ascending=False)
+        
+        # Style the dataframe
+        def highlight_urgent(val):
+            if isinstance(val, (int, float)) and val > 0:
+                return 'background-color: #ffcccc'
+            return ''
+        
+        styled_df = alert_df.style.map(highlight_urgent, subset=['Urgent Issues'])
+        st.dataframe(styled_df, use_container_width=True, hide_index=True)
+    else:
+        st.success("🎉 Great news! All monkeys are healthy!")
+
+# ==============================================================================
+# Main Dashboard
+# ==============================================================================
+def main():
+    st.title("🐒 Capuchin Monkey Health Monitor")
+    st.markdown("*Simple, visual health tracking for your capuchin monkeys*")
+    
+    # Sidebar
+    with st.sidebar:
+        st.header("📁 Upload Health Data")
+        st.info("Upload CSV files for each monkey. The monkey's name will be taken from the filename.")
+        
+        uploaded_files = st.file_uploader(
+            "Choose CSV files",
+            type="csv",
+            accept_multiple_files=True
+        )
+        
+        if uploaded_files:
+            st.success(f"✅ Loaded {len(uploaded_files)} monkey files")
+    
+    # Load data
+    if uploaded_files:
+        data = load_and_process_data(uploaded_files)
+        
+        if data is not None:
+            # Create tabs
+            tab1, tab2, tab3 = st.tabs([
+                "🐒 Individual Health Reports",
+                "📊 Compare All Monkeys",
+                "🚨 Health Alerts & Insights"
+            ])
             
-            # Select an animal to analyze
-            animal_options = data['id'].unique().tolist()
-            selected_animal = st.selectbox("Select Animal", animal_options)
-            
-            # Get data for the selected animal
-            animal_data = data[data['id'] == selected_animal]
-            
-            # Get unique tests for this animal
-            tests = animal_data['test'].unique()
-            
-            # Display basic info
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                sex = animal_data['sex'].iloc[0] if 'sex' in animal_data.columns else 'Unknown'
-                st.metric("Sex", sex)
-            
-            with col2:
-                age = animal_data['age_years'].iloc[0] if 'age_years' in animal_data.columns and not pd.isna(animal_data['age_years'].iloc[0]) else 'Unknown'
-                st.metric("Age (years)", age)
-            
-            with col3:
-                records = len(animal_data)
-                st.metric("Number of Records", records)
-            
-            # Display the most recent test results
-            st.subheader("Most Recent Test Results")
-            
-            # Get the most recent date
-            most_recent_date = animal_data['date'].max()
-            recent_data = animal_data[animal_data['date'] == most_recent_date]
-            
-            # Create a dataframe for display
-            display_df = recent_data[['test', 'result', 'units']].copy()
-            
-            # Add reference range and status
-            display_df['reference_range'] = display_df['test'].apply(
-                lambda x: f"{get_reference_range(x, animal_data['age_years'].iloc[0])['min']} - {get_reference_range(x, animal_data['age_years'].iloc[0])['max']}" if x in REFERENCE_RANGES else 'N/A'
-            )
-            
-            display_df['status'] = display_df.apply(
-                lambda row: get_deviation(row['result'], row['test'], animal_data['age_years'].iloc[0]), 
-                axis=1
-            )
-            
-            # Use custom styling to highlight abnormal values
-            def highlight_status(val):
-                if val == 'High':
-                    return 'background-color: rgba(255, 0, 0, 0.2)'
-                elif val == 'Low':
-                    return 'background-color: rgba(0, 0, 255, 0.2)'
-                else:
-                    return ''
-            
-            # Display the styled dataframe
-            st.dataframe(
-                display_df.style.applymap(highlight_status, subset=['status']), 
-                height=400
-            )
-            
-            # Time series plots for selected parameters
-            st.subheader("Parameter Trends Over Time")
-            
-            # Allow selection of parameters to view
-            selected_params = st.multiselect(
-                "Select Parameters to Plot",
-                options=tests,
-                default=tests[0] if len(tests) > 0 else None
-            )
-            
-            # Create time series plots for selected parameters
-            for param in selected_params:
-                fig = plot_time_series(data, selected_animal, param, age)
-                if fig:
-                    st.plotly_chart(fig, use_container_width=True)
-            
-            # Health radar chart
-            st.subheader("Health Parameter Radar")
-            radar_fig = plot_health_radar(data, selected_animal)
-            if radar_fig:
-                st.plotly_chart(radar_fig, use_container_width=True)
-            
-        # Tab 2: Population Overview
-        with tab2:
-            st.header("Population Health Overview")
-            
-            # Display demographics
-            st.subheader("Demographics")
-            
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                # Sex distribution
-                if 'sex' in data.columns:
-                    sex_counts = data.drop_duplicates('id')['sex'].value_counts().reset_index()
-                    sex_counts.columns = ['Sex', 'Count']
-                    
-                    fig = px.pie(sex_counts, values='Count', names='Sex', title='Sex Distribution')
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.info("Sex data not available.")
-            
-            with col2:
-                # Age distribution
-                if 'age_years' in data.columns and not data['age_years'].isna().all():
-                    age_data = data.drop_duplicates('id')
-                    
-                    fig = px.histogram(
-                        age_data, 
-                        x='age_years',
-                        nbins=10,
-                        title='Age Distribution'
-                    )
-                    fig.update_layout(xaxis_title="Age (years)", yaxis_title="Count")
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.info("Age data not available.")
-            
-            # Overall health metrics
-            st.subheader("Population Health Metrics")
-            
-            # Get the most recent record for each animal
-            most_recent_records = data.sort_values('date').groupby('id').last().reset_index()
-            
-            # Calculate the percentage of abnormal values for key parameters
-            key_params = ['RBC', 'WBC', 'Hemoglobin', 'Glucose', 'ALT', 'Creatinine']
-            abnormal_counts = []
-            
-            for param in key_params:
-                param_data = most_recent_records[most_recent_records['test'] == param]
-                if len(param_data) > 0:
-                    total = len(param_data)
-                    abnormal = sum(param_data.apply(
-                        lambda row: is_outside_range(row['result_numeric'], row['test'], row['age_years'] if 'age_years' in row else None),
-                        axis=1
-                    ))
-                    abnormal_counts.append({
-                        'Parameter': param,
-                        'Normal': total - abnormal,
-                        'Abnormal': abnormal,
-                        'Total': total,
-                        'Percent Abnormal': (abnormal / total) * 100 if total > 0 else 0
-                    })
-            
-            if abnormal_counts:
-                abnormal_df = pd.DataFrame(abnormal_counts)
+            # Tab 1: Individual Reports
+            with tab1:
+                st.header("Individual Monkey Health Report")
                 
-                # Create a stacked bar chart
-                fig = px.bar(
-                    abnormal_df,
-                    x='Parameter',
-                    y=['Normal', 'Abnormal'],
-                    title='Normal vs. Abnormal Values in Population',
-                    labels={'value': 'Count', 'variable': 'Status'},
-                    barmode='stack'
+                monkey_list = sorted(data['id'].unique())
+                selected_monkey = st.selectbox(
+                    "Choose a monkey to view:",
+                    monkey_list,
+                    format_func=lambda x: f"🐒 {x}"
                 )
+                
+                if selected_monkey:
+                    # Health Report Card
+                    create_health_report_card(data, selected_monkey)
+                    
+                    # Recent Test Results
+                    st.subheader("📋 Recent Test Results")
+                    
+                    animal_data = data[data['id'] == selected_monkey]
+                    most_recent_date = animal_data['date'].max()
+                    recent_data = animal_data[animal_data['date'] == most_recent_date]
+                    
+                    # Create a simple display
+                    display_data = []
+                    for _, row in recent_data.iterrows():
+                        status = get_health_status(row['result'], row['test'])
+                        trend, trend_desc = get_trend(data, selected_monkey, row['test'])
+                        
+                        display_data.append({
+                            'Test': row['test'],
+                            'Result': f"{row['result']:.1f} {row['units']}",
+                            'Status': status,
+                            'Trend': f"{trend} {trend_desc}"
+                        })
+                    
+                    display_df = pd.DataFrame(display_data)
+                    st.dataframe(display_df, use_container_width=True, hide_index=True)
+                    
+                    # Simple Timeline
+                    st.subheader("📈 Health Trends")
+                    
+                    # Group tests by category
+                    categories = {}
+                    for test, info in REFERENCE_RANGES.items():
+                        cat = info.get('category', 'Other')
+                        if cat not in categories:
+                            categories[cat] = []
+                        categories[cat].append(test)
+                    
+                    selected_category = st.selectbox(
+                        "Choose a health category:",
+                        list(CATEGORY_DISPLAY.keys()),
+                        format_func=lambda x: CATEGORY_DISPLAY[x]
+                    )
+                    
+                    if selected_category:
+                        tests_in_category = categories[selected_category]
+                        selected_test = st.selectbox(
+                            "Choose a specific test:",
+                            tests_in_category
+                        )
+                        
+                        if selected_test:
+                            fig = create_simple_timeline(data, selected_monkey, selected_test)
+                            if fig:
+                                st.plotly_chart(fig, use_container_width=True)
+            
+            # Tab 2: Comparison
+            with tab2:
+                st.header("Compare All Monkeys")
+                
+                # Health Leaderboard
+                fig = create_comparison_chart(data)
                 st.plotly_chart(fig, use_container_width=True)
-            else:
-                st.info("Not enough data for population health metrics.")
-        
-        # Tab 3: Comparative Analysis
-        with tab3:
-            st.header("Comparative Analysis")
-            
-            # Select parameters for comparison
-            all_tests = data['test'].unique()
-            compare_param = st.selectbox("Select Parameter to Compare", all_tests)
-            
-            # Create a distribution plot
-            dist_fig = plot_parameter_distribution(data, compare_param)
-            if dist_fig:
-                st.plotly_chart(dist_fig, use_container_width=True)
-            
-            # Allow comparison between specific animals
-            st.subheader("Compare Specific Animals")
-            
-            # Select animals to compare
-            compare_animals = st.multiselect(
-                "Select Animals to Compare",
-                options=animal_options,
-                default=animal_options[:min(2, len(animal_options))]
-            )
-            
-            if len(compare_animals) > 0:
-                # Select test for comparison
-                compare_test = st.selectbox("Select Test for Comparison", all_tests, key="compare_test")
                 
-                # Create comparison plot
-                compare_data = data[data['id'].isin(compare_animals) & (data['test'] == compare_test)]
+                # Side by side comparison
+                st.subheader("🔍 Compare Two Monkeys")
                 
-                if len(compare_data) > 0:
-                    fig = px.line(
-                        compare_data,
-                        x='date',
-                        y='result_numeric',
-                        color='id',
-                        markers=True,
-                        title=f"{compare_test} Comparison"
-                    )
+                col1, col2 = st.columns(2)
+                with col1:
+                    monkey1 = st.selectbox("First monkey:", monkey_list, key="m1")
+                with col2:
+                    monkey2 = st.selectbox("Second monkey:", 
+                                         [m for m in monkey_list if m != monkey1], key="m2")
+                
+                if monkey1 and monkey2:
+                    col1, col2 = st.columns(2)
                     
-                    # Add reference range if available
-                    ref_range = get_reference_range(compare_test)
-                    if ref_range:
-                        # Add reference range as a shaded area
-                        fig.add_shape(
-                            type="rect",
-                            x0=compare_data['date'].min(),
-                            x1=compare_data['date'].max(),
-                            y0=ref_range['min'],
-                            y1=ref_range['max'],
-                            fillcolor="rgba(0,255,0,0.1)",
-                            line=dict(width=0),
-                            layer="below"
-                        )
+                    with col1:
+                        st.markdown(f"### 🐒 {monkey1}")
+                        score1 = calculate_simple_health_score(data, monkey1)
+                        grade1, _ = get_letter_grade(score1)
+                        weather1, _ = get_health_weather(score1)
+                        st.metric("Health Grade", f"{grade1} {weather1}")
+                        
+                        # Show category scores
+                        for category, display_name in CATEGORY_DISPLAY.items():
+                            score = get_category_health(data, monkey1, category)
+                            if score >= 80:
+                                st.markdown(f"{display_name}: 🟢 **Good**")
+                            elif score >= 60:
+                                st.markdown(f"{display_name}: 🟡 **Fair**")
+                            else:
+                                st.markdown(f"{display_name}: 🔴 **Needs Care**")
                     
-                    st.plotly_chart(fig, use_container_width=True)
+                    with col2:
+                        st.markdown(f"### 🐒 {monkey2}")
+                        score2 = calculate_simple_health_score(data, monkey2)
+                        grade2, _ = get_letter_grade(score2)
+                        weather2, _ = get_health_weather(score2)
+                        st.metric("Health Grade", f"{grade2} {weather2}")
+                        
+                        # Show category scores
+                        for category, display_name in CATEGORY_DISPLAY.items():
+                            score = get_category_health(data, monkey2, category)
+                            if score >= 80:
+                                st.markdown(f"{display_name}: 🟢 **Good**")
+                            elif score >= 60:
+                                st.markdown(f"{display_name}: 🟡 **Fair**")
+                            else:
+                                st.markdown(f"{display_name}: 🔴 **Needs Care**")
+            
+            # Tab 3: Alerts
+            with tab3:
+                st.header("🚨 Health Alerts & Insights")
+                
+                st.subheader("Monkeys Needing Attention")
+                create_alert_dashboard(data)
+                
+                # Success Stories
+                st.subheader("🌟 Success Stories")
+                
+                improvements = []
+                for animal_id in data['id'].unique():
+                    animal_data = data[data['id'] == animal_id]
+                    
+                    for test in REFERENCE_RANGES.keys():
+                        test_data = animal_data[animal_data['test'] == test].sort_values('date')
+                        if len(test_data) >= 3:
+                            early_avg = test_data.head(3)['result'].mean()
+                            recent_avg = test_data.tail(3)['result'].mean()
+                            
+                            # Check if moved into healthy range
+                            ref = REFERENCE_RANGES[test]
+                            was_unhealthy = early_avg < ref['min'] or early_avg > ref['max']
+                            now_healthy = ref['min'] <= recent_avg <= ref['max']
+                            
+                            if was_unhealthy and now_healthy:
+                                improvements.append(f"🎉 {animal_id}'s {test} is now in the healthy range!")
+                
+                if improvements:
+                    for improvement in improvements[:5]:  # Show top 5
+                        st.success(improvement)
                 else:
-                    st.info(f"No data available for {compare_test} for the selected animals.")
-            
-            # Add time-normalized view to compare animals at same age
-            if 'age_years' in data.columns and not data['age_years'].isna().all():
-                st.subheader("Age-Based Comparison")
+                    st.info("No major improvements to report yet, but keep monitoring!")
                 
-                # Select test for age comparison
-                age_compare_test = st.selectbox("Select Test", all_tests, key="age_compare_test")
+                # Simple Insights
+                st.subheader("💡 Quick Insights")
                 
-                # Create age-based comparison plot
-                age_compare_data = data[data['test'] == age_compare_test]
+                # Find monkeys with similar issues
+                st.markdown("**Monkeys with Similar Health Patterns:**")
                 
-                if len(age_compare_data) > 0:
-                    fig = px.scatter(
-                        age_compare_data,
-                        x='age_years',
-                        y='result_numeric',
-                        color='id',
-                        title=f"{age_compare_test} by Age"
-                    )
+                # Collect health issues for each monkey
+                monkey_issues = {}
+                for animal_id in data['id'].unique():
+                    animal_data = data[data['id'] == animal_id]
+                    most_recent_date = animal_data['date'].max()
+                    recent_data = animal_data[animal_data['date'] == most_recent_date]
                     
-                    # Add reference range if available
-                    ref_range = get_reference_range(age_compare_test)
-                    if ref_range:
-                        # Add reference range as horizontal lines
-                        fig.add_shape(
-                            type="line",
-                            x0=age_compare_data['age_years'].min(),
-                            x1=age_compare_data['age_years'].max(),
-                            y0=ref_range['min'],
-                            y1=ref_range['min'],
-                            line=dict(color="red", width=1, dash="dash")
-                        )
-                        fig.add_shape(
-                            type="line",
-                            x0=age_compare_data['age_years'].min(),
-                            x1=age_compare_data['age_years'].max(),
-                            y0=ref_range['max'],
-                            y1=ref_range['max'],
-                            line=dict(color="red", width=1, dash="dash")
-                        )
+                    issues = set()
+                    for _, row in recent_data.iterrows():
+                        status = get_health_status(row['result'], row['test'])
+                        if "🔴" in status or "🟡" in status:
+                            if row['test'] in REFERENCE_RANGES:
+                                issues.add(REFERENCE_RANGES[row['test']]['category'])
                     
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.info(f"No data available for {age_compare_test} with age information.")
+                    monkey_issues[animal_id] = issues
+                
+                # Find monkeys with overlapping issues (at least 2 categories in common)
+                shown_pairs = set()
+                found_similar = False
+                
+                for monkey1, issues1 in monkey_issues.items():
+                    for monkey2, issues2 in monkey_issues.items():
+                        if monkey1 != monkey2 and (monkey1, monkey2) not in shown_pairs:
+                            common_issues = issues1.intersection(issues2)
+                            if len(common_issues) >= 2:  # At least 2 categories in common
+                                found_similar = True
+                                shown_pairs.add((monkey1, monkey2))
+                                shown_pairs.add((monkey2, monkey1))
+                                
+                                categories = [CATEGORY_DISPLAY.get(cat, cat) for cat in common_issues]
+                                st.info(f"🔗 {monkey1} and {monkey2} both need attention for: {', '.join(categories)}")
+                
+                # Original exact pattern matching (kept as fallback)
+                if not found_similar:
+                    groupings = {}
+                    for animal_id in data['id'].unique():
+                        animal_data = data[data['id'] == animal_id]
+                        most_recent_date = animal_data['date'].max()
+                        recent_data = animal_data[animal_data['date'] == most_recent_date]
+                        
+                        issues = []
+                        for _, row in recent_data.iterrows():
+                            status = get_health_status(row['result'], row['test'])
+                            if "🔴" in status or "🟡" in status:
+                                if row['test'] in REFERENCE_RANGES:
+                                    issues.append(REFERENCE_RANGES[row['test']]['category'])
+                        
+                        issue_pattern = tuple(sorted(set(issues)))
+                        if issue_pattern not in groupings:
+                            groupings[issue_pattern] = []
+                        groupings[issue_pattern].append(animal_id)
+                    
+                    for pattern, monkeys in groupings.items():
+                        if len(monkeys) > 1 and pattern:
+                            categories = [CATEGORY_DISPLAY.get(cat, cat) for cat in pattern]
+                            st.info(f"🔗 {', '.join(monkeys)} all need attention for: {', '.join(categories)}")
+                            found_similar = True
+                
+                if not found_similar:
+                    st.info("Each monkey has unique health patterns. No two monkeys share similar health concerns at this time.")
         
-        # Tab 4: Pattern Detection
-        with tab4:
-            st.header("Pattern Detection")
-            
-            # Only proceed if we have enough animals
-            if data['id'].nunique() >= 2:
-                # Prepare data for clustering
-                st.subheader("Health Pattern Clustering")
-                
-                try:
-                    # Pivot the data for clustering
-                    pivoted_data = pivot_data_for_clustering(data)
-                    
-                    # Select number of clusters
-                    n_clusters = st.slider("Number of Clusters", 2, min(10, data['id'].nunique()), 3)
-                    
-                    # Perform clustering
-                    clustered_data, linkage_matrix = perform_clustering(pivoted_data, n_clusters)
-                    
-                    # Display dendrogram
-                    st.subheader("Hierarchical Clustering Dendrogram")
-                    
-                    plt.figure(figsize=(10, 6))
-                    plt.title('Hierarchical Clustering Dendrogram')
-                    plt.xlabel('Animal ID')
-                    plt.ylabel('Distance')
-                    
-                    # Create dendrogram
-                    dendrogram_plot = dendrogram(
-                        linkage_matrix,
-                        leaf_rotation=90,
-                        leaf_font_size=10,
-                        labels=pivoted_data['id'].values
-                    )
-                    
-                    st.pyplot(plt)
-                    
-                    # Perform PCA and visualize clusters
-                    st.subheader("Principal Component Analysis")
-                    
-                    pca_df, loadings, explained_variance = perform_pca(clustered_data)
-                    
-                    pca_fig = plot_clustered_data(pca_df, loadings, explained_variance)
-                    st.plotly_chart(pca_fig, use_container_width=True)
-                    
-                    # Display cluster membership
-                    st.subheader("Cluster Membership")
-                    
-                    cluster_membership = clustered_data[['id', 'cluster']]
-                    st.dataframe(cluster_membership)
-                    
-                    # Feature importance
-                    st.subheader("Feature Importance")
-                    st.write("Top parameters contributing to variation in the data:")
-                    
-                    # Display top loadings for PC1
-                    top_loadings = loadings['PC1'].abs().sort_values(descending=True).head(10)
-                    
-                    loading_fig = px.bar(
-                        x=top_loadings.values,
-                        y=top_loadings.index,
-                        orientation='h',
-                        title="Top Parameters Contributing to PC1",
-                        labels={'x': 'Loading Magnitude', 'y': 'Parameter'}
-                    )
-                    loading_fig.update_layout(yaxis={'categoryorder': 'total ascending'})
-                    
-                    st.plotly_chart(loading_fig, use_container_width=True)
-                    
-                except Exception as e:
-                    st.error(f"Error in clustering analysis: {e}")
-                    st.info("Make sure your data has sufficient numeric values across multiple animals for clustering to work properly.")
-            else:
-                st.info("Pattern detection requires data from at least 2 different animals.")
-            
-            # Anomaly detection section
-            st.subheader("Health Anomaly Detection")
-            
-            # Get the most recent test results for each animal and test
-            most_recent = data.sort_values('date').groupby(['id', 'test']).last().reset_index()
-            
-            # Check for anomalies
-            anomalies = []
-            for _, row in most_recent.iterrows():
-                if is_outside_range(row['result_numeric'], row['test'], row['age_years'] if 'age_years' in row else None):
-                    deviation = get_deviation(row['result_numeric'], row['test'], row['age_years'] if 'age_years' in row else None)
-                    ref_range = get_reference_range(row['test'], row['age_years'] if 'age_years' in row else None)
-                    anomalies.append({
-                        'Animal ID': row['id'],
-                        'Parameter': row['test'],
-                        'Value': row['result'],
-                        'Units': row['units'] if 'units' in row else ref_range['units'] if ref_range else '',
-                        'Reference Range': f"{ref_range['min']} - {ref_range['max']}" if ref_range else 'N/A',
-                        'Status': deviation,
-                        'Date': row['date']
-                    })
-            
-            if anomalies:
-                anomaly_df = pd.DataFrame(anomalies)
-                
-                # Display anomalies
-                st.markdown("### Detected Anomalies")
-                
-                # Use custom styling to highlight high/low values
-                def highlight_anomaly(val):
-                    if val == 'High':
-                        return 'background-color: rgba(255, 0, 0, 0.2)'
-                    elif val == 'Low':
-                        return 'background-color: rgba(0, 0, 255, 0.2)'
-                    else:
-                        return ''
-                
-                st.dataframe(
-                    anomaly_df.style.applymap(highlight_anomaly, subset=['Status']), 
-                    height=400
-                )
-                
-                # Option to download anomaly report
-                anomaly_csv = anomaly_df.to_csv(index=False)
-                b64 = base64.b64encode(anomaly_csv.encode()).decode()
-                href = f'<a href="data:file/csv;base64,{b64}" download="capuchin_anomalies.csv">Download Anomaly Report</a>'
-                st.markdown(href, unsafe_allow_html=True)
-            else:
-                st.success("No health anomalies detected in the most recent test results.")
+        else:
+            st.error("Could not load the data. Please check your CSV files.")
+    else:
+        # Welcome screen
+        st.info("""
+        👋 Welcome to the Capuchin Health Monitor!
+        
+        This tool helps you track the health of your capuchin monkeys in a simple, visual way.
+        
+        **To get started:**
+        1. Upload CSV files for each monkey using the sidebar
+        2. Each file should be named with the monkey's name (e.g., "Allie.csv")
+        3. The dashboard will automatically create easy-to-understand health reports
+        
+        **No complex charts or technical terms** - just simple grades, colors, and clear recommendations!
+        """)
 
-# Custom CSS to improve the dashboard appearance
-st.markdown("""
-<style>
-    .main .block-container {
-        padding-top: 2rem;
-    }
-    h1, h2, h3 {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-    }
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 2rem;
-    }
-    .stTabs [data-baseweb="tab"] {
-        height: 3rem;
-        white-space: pre-wrap;
-        background-color: rgba(245, 245, 245, 0.5);
-        border-radius: 5px 5px 0px 0px;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #f0f0f0;
-        font-weight: bold;
-    }
-    [data-testid="stMetric"] {
-        background-color: #f0f0f0;
-        padding: 1rem;
-        border-radius: 5px;
-    }
-    [data-testid="stMetricLabel"] {
-        font-size: 1rem;
-    }
-    [data-testid="stMetricValue"] {
-        font-size: 1.5rem;
-        font-weight: bold;
-    }
-    .stAlert {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# Run the dashboard
 if __name__ == "__main__":
-    create_dashboard()
+    main()
