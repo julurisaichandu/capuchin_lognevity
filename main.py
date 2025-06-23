@@ -193,8 +193,16 @@ def load_and_process_data(uploaded_files):
     all_dfs = []
     for uploaded_file in uploaded_files:
         try:
-            animal_id = os.path.basename(uploaded_file.name).split(' ')[0].capitalize()
-            df = pd.read_csv(uploaded_file)
+            if isinstance(uploaded_file, str):
+                # It's a file path
+                animal_id = os.path.basename(uploaded_file).split(' ')[0].capitalize()
+                df = pd.read_csv(uploaded_file)
+            else:
+                # It's an uploaded file object
+                animal_id = os.path.basename(uploaded_file.name).split(' ')[0].capitalize()
+                df = pd.read_csv(uploaded_file)
+            # animal_id = os.path.basename(uploaded_file.name).split(' ')[0].capitalize()
+            # df = pd.read_csv(uploaded_file)
             df.columns = df.columns.str.strip()
             df['id'] = animal_id
             df['date'] = pd.to_datetime(df['date'], errors='coerce')
@@ -445,11 +453,13 @@ def main():
         st.header("📁 Upload Health Data")
         st.info("Upload CSV files for each monkey. The monkey's name will be taken from the filename.")
         
-        uploaded_files = st.file_uploader(
-            "Choose CSV files",
-            type="csv",
-            accept_multiple_files=True
-        )
+        # uploaded_files = st.file_uploader(
+        #     "Choose CSV files",
+        #     type="csv",
+        #     accept_multiple_files=True
+        # )
+        uploaded_files = ['Allie one deceased_final.csv','Annie one deceased_final.csv','Bambi one living_final.csv','daisy one_final.csv','davey one_final.csv']
+
         
         if uploaded_files:
             st.success(f"✅ Loaded {len(uploaded_files)} monkey files")
